@@ -1,0 +1,10 @@
+---
+- name: "Installation de postgresql"
+  hosts: "database"
+  become: true
+  gather_facts: true
+  tasks:
+    - name: "Installation de postgresql"
+      ansible.builtin.include_role:
+        name: postgresql
+        tasks_from: install_manager.yml

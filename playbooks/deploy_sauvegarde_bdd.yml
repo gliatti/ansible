@@ -1,0 +1,15 @@
+---
+- name: "Installation de git"
+  ansible.builtin.import_playbook: install_git.yml
+
+- name: "Déploiement de git"
+  ansible.builtin.import_playbook: deploy_git.yml
+
+- name: "Installation de gpg"
+  ansible.builtin.import_playbook: install_gpg.yml
+
+- name: "Déploiement de gpg"
+  ansible.builtin.import_playbook: deploy_gpg.yml
+
+- name: "Déploiement des configurations ssh utilisateur"
+  ansible.builtin.import_playbook: deploy_ssh_user_configs.yml

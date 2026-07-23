@@ -1,9 +1,0 @@
-# ansible/deploy_git.yml
----
-- hosts: "{{ inventory_hostname }}"
-  become: true
-  tasks:
-    - name: "Exécution du déploiement de git"
-      include_role:
-        name: git
-        tasks_from: "config_manager.yml"

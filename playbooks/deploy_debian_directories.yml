@@ -1,0 +1,9 @@
+---
+- name: "Gestion des répertoires debian"
+  hosts: "{{ target_hosts | default([]) }}"
+  become: true
+  tasks:
+    - name: "Gestion des répertoires debian"
+      ansible.builtin.include_role:
+        name: debian
+        tasks_from: directory_manager

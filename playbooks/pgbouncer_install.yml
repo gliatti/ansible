@@ -1,0 +1,10 @@
+---
+- name: "Installation de pgbouncer"
+  hosts: "pgbouncer"
+  become: true
+  gather_facts: true
+  tasks:
+    - name: "Installation de pgbouncer"
+      ansible.builtin.include_role:
+        name: pgbouncer
+        tasks_from: install_manager.yml

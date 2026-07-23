@@ -1,0 +1,62 @@
+---
+- name: Configuration de la sauvegarde barman sur le serveur de bases de données postgresql
+  hosts: "barman_server"
+  become: true
+  vars_prompt:
+    - name: "postgres_server_name"
+      prompt: "Nom du serveur postgresql"
+      default: "S5LXPGBCKHCD01"
+      private: false
+    - name: "postgres_server_host_name"
+      prompt: "Hostname du serveur postgresql"
+      default: "S5LXPGBCKHCD01.devdata.fr"
+      private: false
+    - name: "barman_configuration_description"
+      prompt: "Brève description de la sauvegarde"
+      default: "Sauvegarde du serveur S5LXPGBCKHCD01"
+      private: false
+    - name: "postgres_port_number"
+      prompt: "Numéro du port sur lequelle le serveur postgresql écoute"
+      default: "5432"
+      private: false
+    - name: "barman_user_password"
+      prompt: "Mot de passe du super utilisateur"
+      private: true
+    - name: "streaming_user_password"
+      prompt: "Mot de l'utilisateur de réplication"
+      private: true
+    - name: "cron_schedule_hour"
+      prompt: "Heure du cron de sauvegarde du serveur postgres"
+      private: false
+      default: "23"
+    - name: "cron_schedule_minute"
+      prompt: "Minute à laquelle du cron de sauvegarde du serveur postgres"
+      private: false
+      default: "30"
+    - name: "cron_schedule_weekday"
+      prompt: "Jour de la semaine du cron de sauvegarde du serveur postgres"
+      private: false
+      default: "*"
+  vars:
+    current_barman_server_configuration:
+      - name: "{{ postgres_server_name }}"
+        host_name: "{{ postgres_server_host_name }}"
+        description: "{{ barman_configuration_description }}"
+        port_number: "{{ postgres_port_number }}"
+        super_user_password: "{{ barman_user_password }}"
+        streaming_user_password: "{{ streaming_user_password }}"
+        cron_disabled: false
+        cron_schedule:
+          minute: "{{ cron_schedule_minute }}"
+          hour: "{{ cron_schedule_hour }}"
+          day: "*"
+          month: "*"
+          weekday: "{{ cron_schedule_weekday }}"
+
+  tasks:
+    - name: Exécution de la configuration barman
+      ansible.builtin.include_role:
+        name: barman
+        tasks_from: configure
+      vars:
+        barman_server_configuration: "{{ current_barman_server_configuration }}"

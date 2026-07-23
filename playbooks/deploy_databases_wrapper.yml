@@ -1,0 +1,6 @@
+---
+- name: "Déploiement de la PKI"
+  ansible.builtin.import_playbook: deploy_pki.yml
+
+- name: "Déploiement des bases de données"
+  ansible.builtin.import_playbook: deploy_databases.yml

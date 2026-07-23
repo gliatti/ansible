@@ -1,0 +1,9 @@
+---
+- name: Installation de barman
+  hosts: "{{ target_hosts }}" # noqa: syntax-check[specific]
+  become: true
+  tasks:
+    - name: Exécution de l'installation barman
+      ansible.builtin.include_role:
+        name: barman
+        tasks_from: install

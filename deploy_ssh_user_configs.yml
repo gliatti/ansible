@@ -1,9 +1,0 @@
-# ansible/deploy_ssh_user_configs.yml
----
-- hosts: "{{ inventory_hostname }}"
-  become: yes
-  tasks:
-    - name: Exécution du rôle ssh
-      include_role:
-        name: ssh
-        tasks_from: user_config_manager_wrapper

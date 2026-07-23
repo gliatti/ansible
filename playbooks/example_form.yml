@@ -1,0 +1,17 @@
+---
+- name: "Exemple de formulaire"
+  hosts: "{{ target_hosts }}" # noqa: syntax-check[specific]
+  vars_prompt:
+    - name: "database_name"
+      prompt: "Nom de la base de données à créer"
+      private: false
+  tasks:
+    - name: "Affichage de démonstration"
+      ansible.builtin.debug:
+        msg: play1
+
+- name: "Ajout des utilisateurs"
+  ansible.builtin.import_playbook: deploy_debian_users.yml
+
+- name: "Configuration du mysecureshell"
+  ansible.builtin.import_playbook: deploy_mysecureshell.yml

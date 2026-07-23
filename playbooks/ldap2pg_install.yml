@@ -1,0 +1,9 @@
+---
+- name: "Installation de ldap2pg"
+  hosts: "database"
+  become: true
+  gather_facts: true
+  tasks:
+    - name: "Installation de ldap2pg"
+      ansible.builtin.include_role:
+        name: ldap2pg

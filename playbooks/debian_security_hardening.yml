@@ -1,0 +1,9 @@
+---
+- name: "Durcissement de la sécurité debian"
+  hosts: "all"
+  become: true
+  tasks:
+    - name: "Exécution de la tâche de sécurité du rôle debian"
+      ansible.builtin.include_role:
+        name: "debian"
+        tasks_from: "security_manager.yml"

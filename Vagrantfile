@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
     # Configuration de la provision avec Ansible
     host_config.vm.provision "ansible" do |ansible|
       ansible.limit = "all"
-      ansible.playbook = "install.yml"        # Chemin vers le playbook Ansible
+      ansible.playbook = "playbooks/install.yml"        # Chemin vers le playbook Ansible
       ansible.inventory_path = "inventories/vagrant/inventory"    # Chemin vers l'inventaire Ansible spécifique
       ansible.compatibility_mode = "2.0"
     end

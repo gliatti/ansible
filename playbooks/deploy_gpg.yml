@@ -1,0 +1,8 @@
+---
+- name: "Déploiement de gpg"
+  hosts: "{{ target_hosts | default([]) }}"
+  become: true
+  tasks:
+    - name: Exécution du rôle gpg
+      ansible.builtin.include_role:
+        name: gpg

@@ -1,0 +1,9 @@
+---
+- name: "Gestion de la configuration de pgbouncer"
+  hosts: "pgbouncer"
+  become: true
+  gather_facts: true
+  tasks:
+    - name: "Gestion de la configuration de pgbouncer"
+      ansible.builtin.include_role:
+        name: pgbouncer

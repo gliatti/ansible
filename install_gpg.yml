@@ -1,9 +1,0 @@
-# ansible/deploy_gpg.yml
----
-- hosts: "{{ inventory_hostname }}"
-  become: yes
-  tasks:
-    - name: Exécution du rôle gpg
-      include_role:
-        name: gpg
-        tasks_from: "install_manager.yml"

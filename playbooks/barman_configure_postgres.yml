@@ -1,0 +1,56 @@
+---
+- name: Configuration de la sauvegarde barman sur le serveur de bases de données postgresql
+  hosts: "{{ target_hosts }}" # noqa: syntax-check[specific]
+  become: true
+  vars_prompt:
+    - name: "postgres_directory"
+      prompt: "Chemin du répertoire postgres"
+      default: "/pgdata/17/main"
+      private: false
+    - name: "barman_user_password"
+      prompt: "Mot de passe du super utilisateur"
+      private: true
+    - name: "streaming_user_password"
+      prompt: "Mot de l'utilisateur de réplication"
+      private: true
+  tasks:
+    - name: Exécution de la sauvegarde du fichier de configuration du postgres
+      ansible.builtin.include_role:
+        name: postgresql
+        tasks_from: save_postgresql_conf_file
+      vars:
+        postgres_conf_file_path: "{{ postgres_directory }}/postgresql.conf"
+        postgres_old_conf_file_path: "{{ postgres_directory }}/postgresql.conf.old"
+
+    - name: changement des paramètres
+      ansible.builtin.include_role:
+        name: common
+        tasks_from: lineinfile_replace_regexp_by_value
+      vars:
+        file_path: "{{ postgres_directory }}/postgresql.conf"
+        parameter_regexp: "{{ item.regexp }}"
+        parameter_value: "{{ item.value }}"
+      loop:
+        - { regexp: "^wal_level", value: "wal_level = hot_standby" }
+        - { regexp: "^archive_mode", value: "archive_mode = on" }
+        - { regexp: "^archive_command", value: "archive_command = 'nice -19 gzip -9c \"%p\" > \"$PGDATA/backups/pg_xlog_archived/%f.gz\"'" }
+        - { regexp: "^max_wal_senders", value: "max_wal_senders = 2" }
+        - { regexp: "^max_replication_slots", value: "max_replication_slots = 2" }
+        - { regexp: "^wal_buffers", value: "wal_buffers = 8MB" }
+
+    - name: création des utilisateurs
+      ansible.builtin.include_role:
+        name: postgresql
+        tasks_from: create_db_user
+      vars:
+        user_name: "{{ item.name }}"
+        user_password: "{{ item.password }}"
+        user_roles: "{{ item.roles }}"
+      loop:
+        - { name: "barman", password: "{{ barman_user_password }}", roles: "LOGIN,SUPERUSER" }
+        - { name: "streaming_barman", password: "{{ streaming_user_password }}", roles: "LOGIN,REPLICATION" }
+
+    - name: redémarrage postgresql
+      ansible.builtin.include_role:
+        name: postgresql
+        tasks_from: restart_postgresql_service

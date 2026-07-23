@@ -1,0 +1,8 @@
+---
+- name: "Déploiement de logrotate"
+  hosts: "{{ target_hosts }}" # noqa: syntax-check[specific]
+  become: true
+  tasks:
+    - name: Exécution du rôle logrotate
+      ansible.builtin.include_role:
+        name: logrotate

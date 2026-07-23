@@ -1,7 +1,0 @@
-# ansible/deploy_sauvegarde_bdd.yml
----
-  - import_playbook: install_git.yml
-  - import_playbook: deploy_git.yml
-  - import_playbook: install_gpg.yml
-  - import_playbook: deploy_gpg.yml
-  - import_playbook: deploy_ssh_user_configs.yml

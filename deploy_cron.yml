@@ -1,8 +1,0 @@
-# ansible/deploy_cron.yml
----
-- hosts: all
-  become: yes
-  tasks:
-    - name: Exécution du rôle cron
-      include_role:
-        name: cron

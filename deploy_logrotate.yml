@@ -1,8 +1,0 @@
-# deploy_logrotate.yml
----
-- hosts: "{{ inventory_hostname }}"
-  become: yes
-  tasks:
-    - name: Exécution du rôle logrotate
-      include_role:
-        name: logrotate

@@ -1,0 +1,9 @@
+---
+- name: "Ajout des utilisateurs"
+  ansible.builtin.import_playbook: deploy_debian_users.yml
+
+- name: "Configuration des répertoires debian"
+  ansible.builtin.import_playbook: deploy_debian_directories.yml
+
+- name: "Configuration du mysecureshell"
+  ansible.builtin.import_playbook: deploy_mysecureshell.yml

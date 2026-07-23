@@ -1,9 +1,0 @@
----
-- hosts: "{{ inventory_host_name }}"
-  become: yes
-  tasks:
-    - name: Exécution de l'installation barman
-      include_role:
-        name: barman
-        tasks_from: install
- 

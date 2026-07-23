@@ -1,9 +1,0 @@
-# ansible/postgres_instal.yml
----
-- hosts: "database"
-  become: yes
-  gather_facts: yes
-  tasks:
-    - name: "Installation de ldap2pg"
-      include_role:
-        name: ldap2pg

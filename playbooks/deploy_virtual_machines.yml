@@ -1,0 +1,22 @@
+---
+- name: "Déploiement des machines virtuelles"
+  hosts: vmware_manager
+  become: true
+  tasks:
+    - name: Exécution du rôle vmware
+      ansible.builtin.include_role:
+        name: vmware
+    ### Quand il y a un ansible par client
+    # - import_playbook: ansible_deploy_inventories.yml
+    #  vars:
+    #    ansible_vmware_guests : "{{ vmware_guests }}"
+
+    - name: Execution du rôle ansible
+      ansible.builtin.include_role:
+        name: ansible
+        tasks_from: local_adding_vm_recently_created
+      vars:
+        param_project_name: "{{ item.ansible_project_name }}"
+        param_group_name: "{{ item.ansible_group_name }}"
+        param_host_name: "{{ item.ansible_host_name }}"
+      loop: "{{ vmware_guests }}"

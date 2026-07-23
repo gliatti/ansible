@@ -1,9 +1,0 @@
-# ansible/debian_security_hardening.yml
----
-- hosts: "all"
-  become: "yes"
-  tasks:
-    - name: "Exécution de la tâche de sécurité du rôle debian"
-      include_role:
-        name: "debian"
-        tasks_from: "security_manager.yml"

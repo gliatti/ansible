@@ -1,9 +1,0 @@
-# ansible/deploy_debian_directories.yml
----
-- hosts: "{{ inventory_hostname }}"
-  become: yes
-  tasks:
-    - name: "Gestion des répertoires debian"
-      include_role:
-        name: debian
-        tasks_from: directory_manager

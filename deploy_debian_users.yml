@@ -1,9 +1,0 @@
-# ansible/deploy_debian_users.yml
----
-- hosts: "{{ inventory_hostname }}"
-  become: yes
-  tasks:
-    - name: "Gestion des users debian"
-      include_role:
-        name: debian
-        tasks_from: users_manager

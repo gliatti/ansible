@@ -1,4 +1,0 @@
-# ansible/deploy_virtual_machines_wrapper.yml
----
-  - import_playbook: deploy_virtual_machines.yml
-  

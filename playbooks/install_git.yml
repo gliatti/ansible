@@ -1,0 +1,9 @@
+---
+- name: "Installation de git"
+  hosts: "{{ target_hosts | default([]) }}"
+  become: true
+  tasks:
+    - name: "Exécution de l'installation de git"
+      ansible.builtin.include_role:
+        name: git
+        tasks_from: "install_manager.yml"

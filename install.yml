@@ -1,6 +1,0 @@
-# ansible/postgres_instal.yml
----
-- name: "Installation de postgresql"
-  ansible.builtin.import_playbook: "postgresql_install.yml"
-- name: "Installation de ldap2pg"
-  ansible.builtin.import_playbook: "ldap2pg_install.yml"

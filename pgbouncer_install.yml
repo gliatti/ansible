@@ -1,9 +1,0 @@
-# ansible/mongodb_instal.yml
----
-- hosts: "pgbouncer"
-  become: yes
-  tasks:
-    - name: "Installation de pgbouncer"
-      include_role:
-        name: pgbouncer
-        tasks_from: install_manager.yml

@@ -1,8 +1,0 @@
-# ansible/pgbouncer_deploy.yml
----
-- hosts: "pgbouncer"
-  become: yes
-  tasks:
-    - name: "Gestion de la configuration de pgbouncer"
-      include_role:
-        name: pgbouncer

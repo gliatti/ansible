@@ -1,0 +1,9 @@
+---
+- name: "Durcissement des sources list debian"
+  hosts: "all"
+  become: true
+  tasks:
+    - name: "Exécution de la tâche de gestion des sources list du rôle debian"
+      ansible.builtin.include_role:
+        name: "debian"
+        tasks_from: "sources_list_manager.yml"

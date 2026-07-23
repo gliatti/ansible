@@ -1,9 +1,0 @@
-# ansible/debian_sources_list_hardening.yml
----
-- hosts: "all"
-  become: "yes"
-  tasks:
-    - name: "Exécution de la tâche de gestion des sources list du rôle debian"
-      include_role:
-        name: "debian"
-        tasks_from: "sources_list_manager.yml"

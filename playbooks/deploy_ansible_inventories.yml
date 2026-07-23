@@ -1,0 +1,28 @@
+---
+- name: "Deploying inventories for ansibles hosts"
+  hosts: "ansible"
+  become: true
+  tasks:
+
+    - name: "Executing ansible role to update ansible/vars.yml after creating a vm"
+      ansible.builtin.include_role:
+        name: ansible
+        tasks_from: adding_vm_recently_created
+      vars:
+        param_project_name: "{{ item.ansible_project_name }}"
+        param_group_name: "{{ item.ansible_group_name }}"
+        param_host_name: "{{ item.ansible_host_name }}"
+      loop:
+        - "{{ ansible_vmware_guests }}"
+      when: ansible_vmware_guests is defined
+
+    - name: "Executing ansible role to generate inventory files"
+      ansible.builtin.include_role:
+        name: ansible
+        tasks_from: hosts_manager.yml
+      vars:
+        ansible_current_inventory_file: "{{ item.name }}"
+        ansible_current_groups: "{{ item.groups }}"
+      loop:
+        - "{{ ansible_inventories }}"
+      when: ansible_inventories is defined

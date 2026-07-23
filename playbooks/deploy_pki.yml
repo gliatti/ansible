@@ -1,0 +1,9 @@
+---
+- name: "Déploiement de la PKI"
+  hosts: ansible
+  become: true
+  tasks:
+    - name: Exécution du rôle pki
+      ansible.builtin.include_role:
+        name: pki
+        tasks_from: pki_generator

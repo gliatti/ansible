@@ -1,0 +1,3 @@
+---
+- name: "Déploiement des machines virtuelles"
+  ansible.builtin.import_playbook: deploy_virtual_machines.yml

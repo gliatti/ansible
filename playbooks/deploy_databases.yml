@@ -1,0 +1,11 @@
+---
+- name: "Déploiement des bases de données"
+  hosts: database
+  become: true
+  tasks:
+    - name: Exécution du rôle postgresql
+      ansible.builtin.include_role:
+        name: postgresql
+    - name: Exécution du rôle debian
+      ansible.builtin.include_role:
+        name: debian
