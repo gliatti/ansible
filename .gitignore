@@ -5,3 +5,5 @@
 .collections/
 # Collection build tarballs
 *.tar.gz
+# Local collection install dir (created by ansible-galaxy during tests)
+.ansible/

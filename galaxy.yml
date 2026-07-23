@@ -1,0 +1,39 @@
+---
+namespace: gliatti
+name: devops
+version: 1.0.0
+readme: README.md
+authors:
+  - Robin Portigliatti
+description: >-
+  Ansible collection to provision PostgreSQL database servers and their
+  ecosystem: Barman, pgBouncer, ldap2pg, plus supporting system roles
+license:
+  - MIT
+tags:
+  - database
+  - postgresql
+  - barman
+  - pgbouncer
+  - ldap2pg
+  - debian
+  - redhat
+repository: https://github.com/gliatti/ansible
+dependencies:
+  community.general: ">=8.0.0"
+  community.postgresql: ">=3.0.0"
+build_ignore:
+  - .gitignore
+  - .ansible-lint
+  - .ansible
+  - .vagrant
+  - .collections
+  - ansible.cfg
+  - ansible.cfg.dpkg-dist
+  - CLAUDE.md
+  - Vagrantfile
+  - hosts
+  - offline-hosts
+  - inventories
+  - requirements.yml
+  - "*.tar.gz"
