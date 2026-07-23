@@ -1,17 +1,25 @@
-# ansible/roles/postgresql/tasks/conf_manager.yml
 ---
-  - name: Configure global settings.
-    lineinfile:
-      dest: "{{ postgresql_pgdata_main_directory }}/postgresql.conf"
-      regexp: "^#?{{ current_postgresql_global_config_option.option }}.+$"
-      line: "{{ current_postgresql_global_config_option.option }} = {{ current_postgresql_global_config_option.value }}"
-      state: "{{ current_postgresql_global_config_option.state | default('present') }}"
-    with_items:
-      - "{{ postgresql_global_config_options }}"
-    loop_control:
-      loop_var: current_postgresql_global_config_option
+- name: "Chargement des variables spécifiques à la distribution"
+  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
+  when: ansible_os_family == 'RedHat'
 
-  - name: "restart postgresql"
-    service:
-      name: "postgresql"
-      state: "restarted"
+# Sur Debian, la locale fr_FR.UTF-8 n'est pas générée par défaut : sans elle,
+# postgresql refuse de démarrer avec les paramètres lc_monetary/lc_numeric/lc_time
+# ('invalid value for parameter'). RedHat fournit cette locale via glibc.
+- name: "Génération de la locale requise par les paramètres lc_ : {{ postgresql_locale }}"
+  community.general.locale_gen:
+    name: "{{ postgresql_locale }}"
+    state: "present"
+  when: ansible_os_family == 'Debian'
+  notify: "Restart postgresql"
+
+- name: Configure global settings.
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql_conf_directory }}/postgresql.conf"
+    regexp: "^#?{{ current_postgresql_global_config_option.option }}.+$"
+    line: "{{ current_postgresql_global_config_option.option }} = {{ current_postgresql_global_config_option.value }}"
+    state: "{{ current_postgresql_global_config_option.state | default('present') }}"
+  loop: "{{ postgresql_global_config_options }}"
+  loop_control:
+    loop_var: current_postgresql_global_config_option
+  notify: "Restart postgresql"

@@ -120,7 +120,7 @@ auth_hba_file = {{ pgbouncer_auth_hba_file }}
 ;;;
 
 ; comma-separated list of users, who are allowed to change settings
-admin_users = postgres
+admin_users = {{ pgbouncer_admin_users }}
 
 ; comma-separated list of users who are just allowed to use SHOW command
 ;stats_users = stats, root
@@ -343,4 +343,4 @@ reserve_pool_size = {{ pgbouncer_reserve_pool_size }}
 ;job_name = pgbouncer
 
 ;; Read additional config from the /etc/pgbouncer/pgbouncer-other.ini file
-;%include /etc/pgbouncer/pgbouncer-other.ini                                                                        ::1/128                 trust
+;%include /etc/pgbouncer/pgbouncer-other.ini

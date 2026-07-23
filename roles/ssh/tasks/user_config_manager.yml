@@ -1,33 +1,40 @@
-# ansible/roles/postgresql/tasks/prerequisites.yml
 ---
-  - name: "Get the user home directory"
-    user:
-      name: "{{ param_config_user }}"
-      state: "present"
-    register: param_user_home
+- name: "Get the user home directory"
+  ansible.builtin.user:
+    name: "{{ param_config_user }}"
+    state: "present"
+  register: param_user_home
 
-  - name: "Configure ssh config file"
-    template:
-      src: "config.j2"
-      dest: "{{ param_user_home.home }}/.ssh/config"
-      owner: "{{ param_config_user }}"
-      group: "{{ param_config_user }}"
-      mode: 0600
+- name: "Création du répertoire .ssh de l'utilisateur {{ param_config_user }}"
+  ansible.builtin.file:
+    path: "{{ param_user_home.home }}/.ssh"
+    state: "directory"
+    owner: "{{ param_config_user }}"
+    group: "{{ param_config_user }}"
+    mode: "0700"
 
-  - name: "Copy private key"
-    copy:
-      src: "{{ param_local_identityfile }}"
-      dest: "{{ param_user_home.home }}/.ssh/{{ param_identityfile }}"
-      owner: "{{ param_config_user }}"
-      group: "{{ param_config_user }}"
-      mode: "0600"
-      force: false
+- name: "Configure ssh config file"
+  ansible.builtin.template:
+    src: "config.j2"
+    dest: "{{ param_user_home.home }}/.ssh/config"
+    owner: "{{ param_config_user }}"
+    group: "{{ param_config_user }}"
+    mode: "0600"
 
-  - name: "Copy public key"
-    copy:
-      src: "{{ param_local_pub_identityfile }}"
-      dest: "{{ param_user_home.home }}/.ssh/{{ param_pub_identityfile }}"
-      owner: "{{ param_config_user }}"
-      group: "{{ param_config_user }}"
-      mode: "0600"
-      force: false
+- name: "Copy private key"
+  ansible.builtin.copy:
+    src: "{{ param_local_identityfile }}"
+    dest: "{{ param_user_home.home }}/.ssh/{{ param_identityfile }}"
+    owner: "{{ param_config_user }}"
+    group: "{{ param_config_user }}"
+    mode: "0600"
+    force: false
+
+- name: "Copy public key"
+  ansible.builtin.copy:
+    src: "{{ param_local_pub_identityfile }}"
+    dest: "{{ param_user_home.home }}/.ssh/{{ param_pub_identityfile }}"
+    owner: "{{ param_config_user }}"
+    group: "{{ param_config_user }}"
+    mode: "0600"
+    force: false

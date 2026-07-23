@@ -1,72 +1,86 @@
-# ansible/roles/postgresql/tasks/RedHat/install.yml
 ---
-  - name: Include variables.
-    ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
+- name: Include variables.
+  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
 
-  - name: "Adding postgres key"
-    ansible.builtin.rpm_key:
-      key: '{{ postgresql_repository_signing_key_url }}'
-      state: present
+- name: "Deposit the postgres gpg key"
+  ansible.builtin.copy:
+    src: "PGDG-RPM-GPG-KEY-RHEL"
+    dest: "/etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
+    owner: "root"
+    group: "root"
+    mode: "0644"
 
-  - name: Adding postgres repo
-    ansible.builtin.yum:
-      name: '{{ postgresql_repository }}'
-      update_cache: true
+- name: "Adding postgres key"
+  ansible.builtin.rpm_key:
+    key: "/etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
+    state: present
 
-  - name: Configure default behavior
-    ansible.builtin.copy:
-      dest: /etc/dnf/modules.d/postgresql.module
-      mode: '0644'
-      content: |-
-        [postgresql]
-        name=postgresql
-        stream=
-        profiles=
-        state=disabled
+- name: Adding postgres repo
+  ansible.builtin.yum_repository:
+    file: "pgdg-redhat-all"
+    name: "pgdg{{ postgresql_version }}"
+    description: "PostgreSQL {{ postgresql_version }} for RHEL / Rocky Linux / AlmaLinux {{ ansible_distribution_major_version }} - $basearch"
+    baseurl: "https://download.postgresql.org/pub/repos/yum/{{ postgresql_version }}/redhat/rhel-{{ ansible_distribution_major_version }}-$basearch"
+    gpgkey: "file:///etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
+    gpgcheck: true
+    enabled: true
+    state: "present"
 
-  - name: Install postgresql packages
-    ansible.builtin.package:
-      name: '{{ postgresql_packages }}'
+- name: Configure default behavior
+  ansible.builtin.copy:
+    dest: /etc/dnf/modules.d/postgresql.module
+    mode: "0644"
+    content: |-
+      [postgresql]
+      name=postgresql
+      stream=
+      profiles=
+      state=disabled
 
-  - name: "Creating PGDATA directory"
-    file:
-      state: directory
-      path: "{{ postgresql_pgdata_main_directory }}"
-      owner: "{{ postgresql_sys_user }}"
-      group: "{{ postgresql_sys_group }}"
-      mode: "1700"
+- name: Install postgresql packages
+  ansible.builtin.package:
+    name: '{{ postgresql_packages }}'
 
-  - name: "Creating WAL directory"
-    file:
-      state: directory
-      path: "{{ postgresql_wal_main_directory }}"
-      owner: "{{ postgresql_sys_user }}"
-      group: "{{ postgresql_sys_group }}"
-      mode: "1700"
+- name: "Creating PGDATA directory"
+  ansible.builtin.file:
+    state: directory
+    path: "{{ postgresql_pgdata_main_directory }}"
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "1700"
 
-  - name: Check if PostgreSQL database is initialized.
-    stat:
-      path: "{{ postgresql_pgdata_main_directory }}/PG_VERSION"
-    register: pgdata_dir_version
+- name: "Creating WAL directory"
+  ansible.builtin.file:
+    state: directory
+    path: "{{ postgresql_wal_main_directory }}"
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "1700"
 
-  - name: "Launching initdb"
-    ansible.builtin.command: "/usr/pgsql-{{ postgresql_version }}/bin/initdb --pgdata='{{ postgresql_pgdata_main_directory }}' --waldir='{{ postgresql_wal_main_directory }}' --auth=scram-sha-256 --auth-local=peer --data-checksums"
-    become_user: postgres
-    when: not pgdata_dir_version.stat.exists
-    vars:
-      ansible_ssh_pipelining: "true"
+- name: Check if PostgreSQL database is initialized.
+  ansible.builtin.stat:
+    path: "{{ postgresql_pgdata_main_directory }}/PG_VERSION"
+  register: pgdata_dir_version
 
-  - name: "Changing postgres-{{ postgresql_version }}.service"
-    ansible.builtin.lineinfile:
-      dest: "/usr/lib/systemd/system/postgresql-{{ postgresql_version }}.service"
-      regexp: "^#?Environment=PGDATA.+$"
-      line: "Environment=PGDATA={{ postgresql_pgdata_main_directory }}"
-      state: "present"
+- name: "Launching initdb"
+  ansible.builtin.command: >-
+    /usr/pgsql-{{ postgresql_version }}/bin/initdb
+    --pgdata='{{ postgresql_pgdata_main_directory }}'
+    --waldir='{{ postgresql_wal_main_directory }}'
+    --auth=scram-sha-256 --auth-local=peer --data-checksums
+  become: true
+  become_user: postgres
+  when: not pgdata_dir_version.stat.exists
+  vars:
+    ansible_ssh_pipelining: "true"
+  notify: "Restart postgresql"
 
-
-  - name: "restart postgresql"
-    service:
-      name: "postgresql-17"
-      state: "restarted"
-      enabled: true
-      daemon_reload: true
+- name: "Configuration du service systemd postgresql-{{ postgresql_version }}"
+  ansible.builtin.lineinfile:
+    dest: "/usr/lib/systemd/system/postgresql-{{ postgresql_version }}.service"
+    regexp: "^#?Environment=PGDATA.+$"
+    line: "Environment=PGDATA={{ postgresql_pgdata_main_directory }}"
+    state: "present"
+  notify:
+    - "Reload systemd daemon"
+    - "Restart postgresql"

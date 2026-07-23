@@ -1,23 +1,23 @@
 # ansible/roles/ldap2pg/defaults/main.yml
 ---
-  ldap2pg_version: 6
-  ldap2pg_dc: "DC=foo,DC=fr"
-  ldap2pg_ldap_url: "ldaps://foo.fr:123"
-  ldap2pg_binddn_cn: "CN=adUser"
-  ldap2pg_binddn_password: "password"
-  ldap2pg_default_users_ou: "OU=Users"
-  ldap2pg_binddn_user_ou: "{{ ldap2pg_default_users_ou }}"
-  ldap2pg_field_member: "sAMAccountName"
-  ldap2pg_groups:
-    - role: "myCN"
-      ou: "OU=Users,OU=IT" # omit if equals to ldap2pg_default_users_ou
-      privilege: "owner"
-      databases:
-        - "pgbench"
-      schemas:
-        - "public"
-      options: "LOGIN INHERIT"
-  ldap2pg_conf_directory: "/etc/ldap2pg"
-  ldap2pg_roles_blacklist_query:
-    - postgres
-    - pg_*
+ldap2pg_version: 6
+ldap2pg_dc: "DC=foo,DC=fr"
+ldap2pg_ldap_url: "ldaps://foo.fr:123"
+ldap2pg_binddn_cn: "CN=adUser"
+ldap2pg_binddn_password: "password"
+ldap2pg_default_users_ou: "OU=Users"
+ldap2pg_binddn_user_ou: "{{ ldap2pg_default_users_ou }}"
+ldap2pg_field_member: "sAMAccountName"
+ldap2pg_groups:
+  - role: "myCN"
+    ou: "OU=Users,OU=IT" # omit if equals to ldap2pg_default_users_ou
+    privilege: "owner"
+    databases:
+      - "pgbench"
+    schemas:
+      - "public"
+    options: "LOGIN INHERIT"
+ldap2pg_conf_directory: "/etc/ldap2pg"
+ldap2pg_roles_blacklist_query:
+  - postgres
+  - pg_*

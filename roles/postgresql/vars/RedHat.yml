@@ -1,7 +1,15 @@
-# ansible/rolespostgresql/RedHat.yml
 ---
-  postgresql_repository_signing_key_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
-  postgresql_repository: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/pgdg-redhat-repo-latest.noarch.rpm"
-  postgresql_packages:
-    - "postgresql{{ postgresql_version }}-server"
-    - "postgresql{{ postgresql_version }}-contrib"
+postgresql_repository_signing_key_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
+postgresql_repository: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/\
+  pgdg-redhat-repo-latest.noarch.rpm"
+postgresql_service_name: "postgresql-{{ postgresql_version }}"
+postgresql_home_directory: "/var/lib/pgsql"
+# Sur RedHat, initdb écrit postgresql.conf directement dans le PGDATA.
+postgresql_conf_directory: "{{ postgresql_pgdata_main_directory }}"
+postgresql_packages:
+  - "postgresql{{ postgresql_version }}-server"
+  - "postgresql{{ postgresql_version }}-contrib"
+postgresql_prerequisites_packages:
+  - "libpq-devel"
+  - "python3-psycopg2"
+  - "gnupg2"

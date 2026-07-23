@@ -1,6 +1,15 @@
-# ansible/roles/postgresql/tasks/prerequisites.yml
 ---
-  - name: "Managing postgresql prerequisites"
-    apt:
-      name: [libpq-dev, python-psycopg2, gpg]
-      state: "latest"
+- name: "Chargement des variables spécifiques à la distribution"
+  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
+  when: ansible_os_family == 'RedHat'
+
+- name: "Activation du dépôt CRB (fournit perl-IPC-Run requis par postgresqlNN-devel)"
+  community.general.dnf_config_manager:
+    name: "crb"
+    state: "enabled"
+  when: ansible_os_family == 'RedHat'
+
+- name: "Installation des prérequis postgresql"
+  ansible.builtin.package:
+    name: "{{ postgresql_prerequisites_packages }}"
+    state: "present"

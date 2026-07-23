@@ -6,3 +6,18 @@ database:
         rocky1:
             ansible_host: 192.168.60.20
             ansible_user: vagrant
+ansible:
+    hosts:
+        debian1:
+pgbouncer:
+    hosts:
+        debian1:
+        rocky1:
+barman_server:
+    hosts:
+        debian1:
+vmware_manager:
+    hosts:
+        debian1:
+    vars:
+        vmware_guests: []

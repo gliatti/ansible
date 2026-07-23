@@ -1,15 +1,13 @@
-# ansible/roles/ssh/tasks/user_config_manager_wrapper.yml
 ---
-  - name: Execution du ssh ansible
-    include_role:
-      name: ssh
-      tasks_from: user_config_manager.yml
-    vars:
-      - param_config_user: "{{ item.user }}"
-      - param_config_content: "{{ item.content }}"
-      - param_local_identityfile: "{{ item.local_identityfile }}"
-      - param_identityfile: "{{ item.identityfile }}"
-      - param_local_pub_identityfile: "{{ item.local_pub_identityfile }}"
-      - param_pub_identityfile: "{{ item.pub_identityfile }}"
-    with_items:
-      - "{{ ssh_user_configs }}"
+- name: Execution du ssh ansible
+  ansible.builtin.include_role:
+    name: ssh
+    tasks_from: user_config_manager.yml
+  vars:
+    param_config_user: "{{ item.user }}"
+    param_config_content: "{{ item.content }}"
+    param_local_identityfile: "{{ item.local_identityfile }}"
+    param_identityfile: "{{ item.identityfile }}"
+    param_local_pub_identityfile: "{{ item.local_pub_identityfile }}"
+    param_pub_identityfile: "{{ item.pub_identityfile }}"
+  loop: "{{ ssh_user_configs }}"

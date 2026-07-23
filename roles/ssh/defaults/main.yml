@@ -1,17 +1,16 @@
-# ansible/roles/ssh/defaults/main.yml
 ---
-  ssh_users: []
-   #- name: "user_1"
-   #  id_rsa_file_path: "/home/user_1/.ssh/id_rsa"
-   #- name: "user_2"
-   #  id_rsa_file_path: "/home/user_2/.ssh/id_rsa"
-  ssh_user_configs:
-    - user: "postgres"
-      content: |
-        Host git.highco-data.fr
-          HostName git.highco-data.fr
-          IdentityFile ~/.ssh/id_rsa_git
-      identityfile: "id_rsa_git"
-      pub_identityfile: "id_rsa_git.pub"
-      local_identityfile: "/etc/pki/git/.ssh/id_rsa"
-      local_pub_identityfile: "/etc/pki/git/.ssh/id_rsa.pub"
+ssh_users: []
+  # - name: "user_1"
+  #   id_rsa_file_path: "/home/user_1/.ssh/id_rsa"
+  # - name: "user_2"
+  #  id_rsa_file_path: "/home/user_2/.ssh/id_rsa"
+ssh_user_configs:
+  - user: "postgres"
+    content: |
+      Host git.highco-data.fr
+        HostName git.highco-data.fr
+        IdentityFile ~/.ssh/id_rsa_git
+    identityfile: "id_rsa_git"
+    pub_identityfile: "id_rsa_git.pub"
+    local_identityfile: "/etc/pki/git/.ssh/id_rsa"
+    local_pub_identityfile: "/etc/pki/git/.ssh/id_rsa.pub"

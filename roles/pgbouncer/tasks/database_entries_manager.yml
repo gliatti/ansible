@@ -1,10 +1,10 @@
-# ansible/roles/pgbouncer/default/main.yml
 ---
-  - name: Configure database entries (if entries are configured).
-    template:
-      src: "pgbouncer.ini.j2"
-      dest: "{{ pgbouncer_inifile }}"
-      owner: "{{ pgbouncer_sys_user }}"
-      group: "{{ pgbouncer_sys_group }}"
-      mode: 0600
-    when: pgbouncer_database_entries is defined
+- name: Configure database entries (if entries are configured).
+  ansible.builtin.template:
+    src: "pgbouncer.ini.j2"
+    dest: "{{ pgbouncer_inifile }}"
+    owner: "{{ pgbouncer_sys_user }}"
+    group: "{{ pgbouncer_sys_group }}"
+    mode: "0600"
+  when: pgbouncer_database_entries is defined
+  notify: Reload pgbouncer

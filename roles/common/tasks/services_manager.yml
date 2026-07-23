@@ -1,5 +1,5 @@
 ---
-  - name: "managing service {{ parameter_service }} with state {{ parameter_state }}"
-    service:
-      name: "{{ parameter_service }}"
-      state: "{{ parameter_state }}"
+- name: "Gestion du service {{ parameter_service ~ ' -> ' ~ parameter_state }}"
+  ansible.builtin.service:
+    name: "{{ parameter_service }}"
+    state: "{{ parameter_state }}"

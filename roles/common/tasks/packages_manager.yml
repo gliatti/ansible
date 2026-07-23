@@ -1,7 +1,5 @@
 ---
-  - name: install postgresql prerequisites
-    apt:
-      name: "{{ packages }}"
-      state: "{{ parameter_state }}"
-    vars:
-      packages: "{{ parameter_packages }}"
+- name: install postgresql prerequisites
+  ansible.builtin.package:
+    name: "{{ parameter_packages }}"
+    state: "{{ parameter_state }}"

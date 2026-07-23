@@ -1,13 +1,15 @@
-# ansible/roles/postgresql/tasks/databases_manager.yml
 ---
-  - name: "Postgresql: Managing databases"
-    postgresql_db:
-      name: "{{ item.name }}"
-      owner: "{{ item.owner }}"
-      port: "{{ item.port | default(postgresql_port_number)}}"
-      state: "{{ item.state }}"
-      login_user: "{{ postgresql_default_owner }}"
-      login_password: "{{ vault_postgresql_password }}"
-    with_items:
-      - "{{ postgresql_databases }}"
-    when: postgresql_databases is defined
+- name: "Postgresql: Managing databases"
+  community.postgresql.postgresql_db:
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
+    port: "{{ item.port | default(postgresql_port_number) }}"
+    state: "{{ item.state }}"
+    login_user: "{{ postgresql_default_owner }}"
+    login_password: "{{ vault_postgresql_password | default(omit) }}"
+  loop: "{{ postgresql_databases }}"
+  when: postgresql_databases is defined
+  become: true
+  become_user: "{{ postgresql_default_owner }}"
+  vars:
+    ansible_ssh_pipelining: "true"

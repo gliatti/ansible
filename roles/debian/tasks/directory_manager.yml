@@ -1,0 +1,14 @@
+---
+- name: "Création des répertoires debian"
+  ansible.builtin.file:
+    path: "{{ debian_directory.path }}"
+    state: "directory"
+    owner: "{{ debian_directory.owner | default('root') }}"
+    group: "{{ debian_directory.group | default('root') }}"
+    mode: "{{ debian_directory.mode | default('0755') }}"
+  loop: "{{ debian_directories }}"
+  loop_control:
+    loop_var: debian_directory
+  when:
+    - debian_directories is defined
+    - debian_directories | length > 0

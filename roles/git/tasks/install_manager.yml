@@ -1,0 +1,5 @@
+---
+- name: "Installation des paquets git"
+  ansible.builtin.package:
+    name: "{{ git_packages }}"
+    state: present

@@ -1,16 +1,14 @@
-# ansible/roles/logrotate/tasks/logrotate_files_manager.yml
 ---
 - name: "Configure logrotate files"
-  template:
+  ansible.builtin.template:
     src: "logrotate.j2"
     dest: "{{ logrotate_files_destination }}/{{ logrotate_file.name }}"
     owner: "{{ logrotate_owner }}"
     group: "{{ logrotate_group }}"
-    mode: 0644
+    mode: "0644"
   vars:
     logrotate_file_template: "{{ logrotate_file }}"
-  with_items:
-    - "{{ logrotate_files }}"
+  loop: "{{ logrotate_files }}"
   loop_control:
     loop_var: logrotate_file
   when: logrotate_files is defined

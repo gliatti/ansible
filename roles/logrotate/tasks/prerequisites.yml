@@ -1,6 +1,5 @@
-# ansible/roles/logrotate/tasks/prerequisites.yml
 ---
-  - name: "Managing logrotate prerequisites"
-    apt:
-      name: "logrotate"
-      state: "latest"
+- name: "Managing logrotate prerequisites"
+  ansible.builtin.package:
+    name: "logrotate"
+    state: "present"

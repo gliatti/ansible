@@ -1,15 +1,10 @@
-# ansible/roles/pgbouncer/tasks/userlist_manager.yml
 ---
-  - name: Configure user list file (if entries are configured).
-    template:
-      src: "userlist.txt.j2"
-      dest: "{{ pgbouncer_auth_file }}"
-      owner: "{{ pgbouncer_sys_user }}"
-      group: "{{ pgbouncer_sys_group }}"
-      mode: 0600
-    when: pgbouncer_userlist is defined
-
-  - name: "reload pgbouncer"
-    service:
-      name: "pgbouncer"
-      state: "reloaded"
+- name: Configure user list file (if entries are configured).
+  ansible.builtin.template:
+    src: "userlist.txt.j2"
+    dest: "{{ pgbouncer_auth_file }}"
+    owner: "{{ pgbouncer_sys_user }}"
+    group: "{{ pgbouncer_sys_group }}"
+    mode: "0600"
+  when: pgbouncer_userlist is defined
+  notify: Reload pgbouncer

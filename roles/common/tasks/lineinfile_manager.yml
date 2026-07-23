@@ -1,8 +1,7 @@
-# ansible/roles/common/tasks/lineinfile_manager.yml
 ---
-   - name: add to ansible hosts file
-     lineinfile:
-       dest: "{{ param_dest | default(omit)}}"
-       regexp: "{{ param_regexp | default(omit) }}"
-       insertafter: "{{ param_insertafter  | default(omit) }}"
-       line: "{{ param_line | default(omit)}}"
+- name: add to ansible hosts file
+  ansible.builtin.lineinfile:
+    dest: "{{ param_dest | default(omit) }}"
+    regexp: "{{ param_regexp | default(omit) }}"
+    insertafter: "{{ param_insertafter | default(omit) }}"
+    line: "{{ param_line | default(omit) }}"

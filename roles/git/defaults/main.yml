@@ -1,0 +1,19 @@
+---
+# Paquets à installer pour git
+git_packages:
+  - git
+
+# Utilisateur pour lequel la configuration globale git est appliquée
+git_config_user: "root"
+
+# Options de configuration git (scope global) appliquées via une boucle.
+# Chaque élément est un dictionnaire {name, value}.
+git_config_options:
+  - name: "user.name"
+    value: "root"
+  - name: "user.email"
+    value: "root@localhost"
+  # - name: "core.editor"
+  #   value: "vim"
+  # - name: "init.defaultBranch"
+  #   value: "main"

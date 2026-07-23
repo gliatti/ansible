@@ -1,8 +1,25 @@
 # ansible/roles/ldap2pg/tasks/RedHat/main.yml
 ---
-  - name: "Adding dalibo labs key"
-    ansible.builtin.yum:
-      name: 'https://yum.dalibo.org/labs/dalibo-labs-4-1.noarch.rpm'
-      state: present
-      disable_gpg_check: true
-      
+- name: "Deposit the dalibo labs gpg key"
+  ansible.builtin.copy:
+    src: "RPM-GPG-KEY-DALIBO-LABS"
+    dest: "/etc/pki/rpm-gpg/RPM-GPG-KEY-DALIBO-LABS"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: "Import the dalibo labs gpg key"
+  ansible.builtin.rpm_key:
+    key: "/etc/pki/rpm-gpg/RPM-GPG-KEY-DALIBO-LABS"
+    state: "present"
+
+- name: "Adding dalibo-labs repo"
+  ansible.builtin.yum_repository:
+    file: "dalibo-labs"
+    name: "dalibolabs"
+    description: "Dalibo Labs - RHEL/CentOS/Rockylinux $releasever - $basearch"
+    baseurl: "https://yum.dalibo.org/labs/RHEL$releasever-$basearch"
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-DALIBO-LABS"
+    gpgcheck: true
+    enabled: true
+    state: "present"

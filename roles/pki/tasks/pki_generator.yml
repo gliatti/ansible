@@ -1,0 +1,13 @@
+---
+- name: "Création du répertoire .ssh de la PKI"
+  ansible.builtin.file:
+    path: "{{ pki_base_directory }}/.ssh"
+    state: directory
+    owner: "{{ pki_key_owner }}"
+    group: "{{ pki_key_group }}"
+    mode: "0700"
+
+- name: "Génération de la clé SSH de la PKI"
+  ansible.builtin.command: "ssh-keygen -t {{ pki_key_type }} -b {{ pki_key_bits }} -f {{ pki_base_directory }}/.ssh/id_rsa -N ''"
+  args:
+    creates: "{{ pki_base_directory }}/.ssh/id_rsa"

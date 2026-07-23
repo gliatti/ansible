@@ -1,0 +1,4 @@
+---
+# Paquets à installer pour gpg
+gpg_packages:
+  - gnupg

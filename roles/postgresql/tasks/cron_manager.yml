@@ -1,6 +1,6 @@
-# ansible/roles/postgresql/tasks/cron_manager.yml
+---
 - name: Exécution du rôle cron à partir du rôle de postgresql
-  include_role:
+  ansible.builtin.include_role:
     name: cron
     tasks_from: cron_manager
   when: cron_schedules is defined

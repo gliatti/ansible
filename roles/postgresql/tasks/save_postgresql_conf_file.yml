@@ -1,0 +1,8 @@
+---
+- name: "Sauvegarde du fichier de configuration postgresql"
+  ansible.builtin.copy:
+    src: "{{ postgres_conf_file_path }}"
+    dest: "{{ postgres_old_conf_file_path }}"
+    remote_src: true
+    force: false
+    mode: "0644"

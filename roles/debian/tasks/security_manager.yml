@@ -1,0 +1,13 @@
+---
+- name: "Durcissement des options sshd"
+  ansible.builtin.lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regexp: "^#?{{ debian_sshd_option.option }}"
+    line: "{{ debian_sshd_option.option }} {{ debian_sshd_option.value }}"
+    state: "present"
+    validate: "/usr/sbin/sshd -t -f %s"
+  loop: "{{ debian_security_sshd_options }}"
+  loop_control:
+    loop_var: debian_sshd_option
+  when: ansible_os_family == "Debian"
+  notify: "Restart sshd"

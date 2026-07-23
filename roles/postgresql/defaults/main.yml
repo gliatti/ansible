@@ -1,204 +1,210 @@
-# ansible/roles/postgresql/default/main.yml
 ---
-  ##################
-  ## Installation ##
-  ##################
-  # Vars that don't need to be overriden
-  postgresql_repository_signing_key_url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
-  postgresql_repository: "http://apt.postgresql.org/pub/repos/apt/"
-  postgresql_path_bin: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
-  postgresql_path_lib: "/usr/lib/postgresql/{{ postgresql_version }}/lib"
-  postgresql_repository_list_name: "pgdg"
-  postgresql_symlinks:
-    - src: "{{ postgresql_pgbackup_directory }}"
-      path: "{{ postgresql_pgdata_main_directory }}/backups"
-    - src: "{{ postgresql_pgdata_main_directory }}/scripts"
-      path: "$dba"
-    - path: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
-      src: "{{ postgresql_pgdata_main_directory }}/pg_hba.conf"
-    - path: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
-      src: "{{ postgresql_pgdata_main_directory }}/postgresql.conf"
-    - path: "/etc/postgresql/{{ postgresql_version }}/main/pg_ident.conf"
-      src: "{{ postgresql_pgdata_main_directory }}/pg_ident.conf"
-  postgresql_debian_createcluster_options:
-    - option: "create_main_cluster"
-      value: "false"
-    - option: "start_conf"
-      value: "disabled"
-  # Vars that can be overriden
-  postgresql_pgdata_directory: "/pgdata"
-  postgresql_version: "17"
-  postgresql_packages:
-    - "postgresql-{{ postgresql_version }}"
-    - "postgresql-client"
-    - "postgresql-contrib-{{ postgresql_version }}"
-  postgresql_env_vars:
-    - "dba={{ postgresql_pgdata_directory }}/dba"
-    - "cron={{ postgresql_pgdata_directory }}/scripts_crontab"
-  postgresql_pgdata_main_directory: "{{ postgresql_pgdata_directory }}/{{ postgresql_version }}/main"
-  postgresql_wal_directory: "/pgwal"
-  postgresql_wal_main_directory: "{{ postgresql_wal_directory }}/{{ postgresql_version }}/main"
+##################
+## Installation ##
+##################
+# Vars that don't need to be overriden
+postgresql_repository_signing_key_url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+postgresql_repository: "http://apt.postgresql.org/pub/repos/apt/"
+postgresql_path_bin: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
+postgresql_path_lib: "/usr/lib/postgresql/{{ postgresql_version }}/lib"
+postgresql_repository_list_name: "pgdg"
+postgresql_service_name: "postgresql"
+postgresql_home_directory: "/var/lib/postgresql"
+postgresql_symlinks:
+  - src: "{{ postgresql_pgbackup_directory }}"
+    path: "{{ postgresql_pgdata_main_directory }}/backups"
+  - src: "{{ postgresql_pgdata_main_directory }}/scripts"
+    path: "$dba"
+  - path: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+    src: "{{ postgresql_pgdata_main_directory }}/pg_hba.conf"
+  - path: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+    src: "{{ postgresql_pgdata_main_directory }}/postgresql.conf"
+  - path: "/etc/postgresql/{{ postgresql_version }}/main/pg_ident.conf"
+    src: "{{ postgresql_pgdata_main_directory }}/pg_ident.conf"
+postgresql_debian_createcluster_options:
+  - option: "create_main_cluster"
+    value: "false"
+  - option: "start_conf"
+    value: "disabled"
+# Vars that can be overriden
+postgresql_pgdata_directory: "/pgdata"
+postgresql_version: "17"
+postgresql_packages:
+  - "postgresql-{{ postgresql_version }}"
+  - "postgresql-client"
+  - "postgresql-contrib-{{ postgresql_version }}"
+postgresql_env_vars:
+  - "dba={{ postgresql_pgdata_directory }}/dba"
+  - "cron={{ postgresql_pgdata_directory }}/scripts_crontab"
+postgresql_pgdata_main_directory: "{{ postgresql_pgdata_directory }}/{{ postgresql_version }}/main"
+# Répertoire des fichiers de configuration (postgresql.conf).
+# Sur Debian, pg_createcluster place postgresql.conf sous /etc/postgresql/<version>/main,
+# et non dans le PGDATA ; RedHat/initdb le place dans le PGDATA (voir vars/RedHat.yml).
+postgresql_conf_directory: "/etc/postgresql/{{ postgresql_version }}/main"
+postgresql_wal_directory: "/pgwal"
+postgresql_wal_main_directory: "{{ postgresql_wal_directory }}/{{ postgresql_version }}/main"
 
-  postgresql_pgbackup_directory: "/pgbackup"
-  postgresql_pgbackup_directories:
-    - "{{ postgresql_pgbackup_directory }}/dump"
-    - "{{ postgresql_pgbackup_directory }}/pg_wal_archived"
-    - "{{ postgresql_pgbackup_directory }}/bck_tmp"
-    - "{{ postgresql_pgbackup_directory }}/bck_all/archive_status"
-    - "{{ postgresql_pgbackup_directory }}/pg_wal_synchro"
+postgresql_pgbackup_directory: "/pgbackup"
+postgresql_pgbackup_directories:
+  - "{{ postgresql_pgbackup_directory }}/dump"
+  - "{{ postgresql_pgbackup_directory }}/pg_wal_archived"
+  - "{{ postgresql_pgbackup_directory }}/bck_tmp"
+  - "{{ postgresql_pgbackup_directory }}/bck_all/archive_status"
+  - "{{ postgresql_pgbackup_directory }}/pg_wal_synchro"
 
-  postgresql_maintenance_directories:
-    - "{{ postgresql_pgdata_directory }}/scripts_crontab/logs"
-    - "{{ postgresql_pgdata_directory }}/dba"
-    - "{{ postgresql_pgdata_main_directory }}/scripts"
+postgresql_maintenance_directories:
+  - "{{ postgresql_pgdata_directory }}/scripts_crontab/logs"
+  - "{{ postgresql_pgdata_directory }}/dba"
+  - "{{ postgresql_pgdata_main_directory }}/scripts"
 
-  postgresql_global_config_options:
-    - option: "data_directory"
-      value: "'{{ postgresql_pgdata_main_directory }}'"
-    - option: "hba_file"
-      value: "'{{ postgresql_pgdata_main_directory }}/pg_hba.conf'"
-    - option: "ident_file"
-      value: "'{{ postgresql_pgdata_main_directory }}/pg_ident.conf'"
-    - option: "listen_addresses"
-      value: "'{{ ansible_default_ipv4.address }}, localhost'"
-    - option: "port"
-      value: "{{ postgresql_port_number }}"
-    - option: "wal_level"
-      value: "replica"
-    - option: "hot_standby"
-      value: "on"
-    - option: "archive_mode"
-      value: "on"
-    - option: "archive_command"
-      value: "'nice -19 gzip -9c \"%p\" > \"/$PGDATA/backups/pg_wal_archived/%f.gz\"'"
-    - option: "log_line_prefix"
-      value: "'%t [%p]: [%l-1] user=%u,db=%d'"
-    - option: "lc_monetary"
-      value: "'fr_FR.UTF-8'"
-    - option: "lc_numeric"
-      value: "'fr_FR.UTF-8'"
-    - option: "lc_time"
-      value: "'fr_FR.UTF-8'"
-    - option: "lc_messages"
-      value: "'C'"
-    - option: "log_min_duration_statement"
-      value: "1000"
-    - option: "log_checkpoints"
-      value: "on"
-    - option: "log_connections"
-      value: "on"
-    - option: "log_disconnections"
-      value: "on"
-    - option: "log_lock_waits"
-      value: "on"
-    - option: "log_temp_files"
-      value: "0"
-    - option: "log_destination"
-      value: "'stderr,syslog'"
-    - option: "logging_collector"
-      value: "on"
-    - option: "log_rotation_age"
-      value: "1d"
-    - option: "checkpoint_completion_target"
-      value: "0.9"
-    - option: "wal_buffers"
-      value: "8MB"
-    - option: "default_statistics_target"
-      value: "1000"
-    - option: "constraint_exclusion"
-      value: "on"
-    - option: "log_filename"
-      value: "'{{ ansible_facts['hostname'] }}-%Y-%m-%d.log'"
-    - option: "shared_preload_libraries"
-      value: "'pg_stat_statements'"
-      # A tester, le calcul a l'air mauvais
-    - option: "effective_cache_size"
-      value: "{{ (ansible_facts['memtotal_mb'] * 3 / 4) | round(0,'common') | int }}MB"
-    - option: "shared_buffers"
-      value: "{{ (ansible_facts['memtotal_mb'] / 4) | round(0,'common') | int }}MB"
-    - option: "work_mem"
-      value: "{{ (ansible_facts['memtotal_mb'] / 100) | round(0,'common') | int }}MB"
-    - option: "maintenance_work_mem"
-      value: "{{ (ansible_facts['memtotal_mb'] / 16)  | round(0,'common') | int }}MB"
-    - option: "max_wal_senders"
-      value: "1"
+postgresql_global_config_options:
+  - option: "data_directory"
+    value: "'{{ postgresql_pgdata_main_directory }}'"
+  - option: "hba_file"
+    value: "'{{ postgresql_pgdata_main_directory }}/pg_hba.conf'"
+  - option: "ident_file"
+    value: "'{{ postgresql_pgdata_main_directory }}/pg_ident.conf'"
+  - option: "listen_addresses"
+    value: "'{{ ansible_default_ipv4.address }}, localhost'"
+  - option: "port"
+    value: "{{ postgresql_port_number }}"
+  - option: "wal_level"
+    value: "replica"
+  - option: "hot_standby"
+    value: "on"
+  - option: "archive_mode"
+    value: "on"
+  - option: "archive_command"
+    value: "'nice -19 gzip -9c \"%p\" > \"/$PGDATA/backups/pg_wal_archived/%f.gz\"'"
+  - option: "log_line_prefix"
+    value: "'%t [%p]: [%l-1] user=%u,db=%d'"
+  - option: "lc_monetary"
+    value: "'fr_FR.UTF-8'"
+  - option: "lc_numeric"
+    value: "'fr_FR.UTF-8'"
+  - option: "lc_time"
+    value: "'fr_FR.UTF-8'"
+  - option: "lc_messages"
+    value: "'C'"
+  - option: "log_min_duration_statement"
+    value: "1000"
+  - option: "log_checkpoints"
+    value: "on"
+  - option: "log_connections"
+    value: "on"
+  - option: "log_disconnections"
+    value: "on"
+  - option: "log_lock_waits"
+    value: "on"
+  - option: "log_temp_files"
+    value: "0"
+  - option: "log_destination"
+    value: "'stderr,syslog'"
+  - option: "logging_collector"
+    value: "on"
+  - option: "log_rotation_age"
+    value: "1d"
+  - option: "checkpoint_completion_target"
+    value: "0.9"
+  - option: "wal_buffers"
+    value: "8MB"
+  - option: "default_statistics_target"
+    value: "1000"
+  - option: "constraint_exclusion"
+    value: "on"
+  - option: "log_filename"
+    value: "'{{ ansible_facts['hostname'] }}-%Y-%m-%d.log'"
+  - option: "shared_preload_libraries"
+    value: "'pg_stat_statements'"
+    # A tester, le calcul a l'air mauvais
+  - option: "effective_cache_size"
+    value: "{{ (ansible_facts['memtotal_mb'] * 3 / 4) | round(0, 'common') | int }}MB"
+  - option: "shared_buffers"
+    value: "{{ (ansible_facts['memtotal_mb'] / 4) | round(0, 'common') | int }}MB"
+  - option: "work_mem"
+    value: "{{ (ansible_facts['memtotal_mb'] / 100) | round(0, 'common') | int }}MB"
+  - option: "maintenance_work_mem"
+    value: "{{ (ansible_facts['memtotal_mb'] / 16) | round(0, 'common') | int }}MB"
+  - option: "max_wal_senders"
+    value: "1"
 
+postgresql_prerequisites_packages:
+  - "libpq-dev"
+  - "python3-psycopg2"
+  - "gpg"
 
+postgresql_locale: "fr_FR.UTF-8"
 
+postgresql_port_number: "5432"
+postgresql_system_database: "postgres"
+postgresql_default_owner: "postgres"
 
-  postgresql_locale: "fr_FR.UTF-8"
+postgresql_sys_user: "postgres"
+postgresql_sys_group: "postgres"
 
-  postgresql_port_number: "5432"
-  postgresql_system_database: "postgres"
-  postgresql_default_owner: "postgres"
+postgresql_default_extensions:
+  - name: "pg_buffercache"
+    state: "present"
+  - name: "unaccent"
+    state: "present"
+  - name: "pg_trgm"
+    state: "present"
 
-  postgresql_sys_user: "postgres"
-  postgresql_sys_group: "postgres"
+postgresql_databases:
+  - name: "template1"
+    owner: "postgres"
+    state: "present"
+    extensions: "{{ postgresql_default_extensions }}"
 
-  postgresql_default_extensions:
-    - name: "pg_buffercache"
-      state: "present"
-    - name: "unaccent"
-      state: "present"
-    - name: "pg_trgm"
-      state: "present"
+postgresql_roles: []
+  ## An user
+  # - name: "user_name"
+  #  password: "user_password"
+  #  role_attr_flags: "user_role_attr_flags"
+  #  state: "user_state"
+  ## A group
+  # - name: "group_name"
+  #  role_attr_flags: "user_role_attr_flags"
+  #  state: "user_state"
 
-  postgresql_databases:
-    - name: "template0"
-      owner: "postgres"
-      state: "present"
-      extensions: "{{ postgresql_default_extensions }}"
+postgresql_privileges: []
+  ## \c <database_name>
+  ## GRANT <user_privs> ON <objs> IN SCHEMA <schema_name> TO <user_name>
+  # - database: "database_name"
+  #  roles: "user_name"
+  #  privs: "user_privs"
+  #  objs: ALL_IN_SCHEMA
+  #  schema: "schema_name"
+  ##
+  ## \c <database_name>
+  ## GRANT SELECT,UPDATE,INSERT,DELETE ON ALL TABLES IN SCHEMA <schema_name> TO <user_name>
+  # - database: "database_name"
+  #  roles: "user_name"
+  #  privs: "SELECT,UPDATE,INSERT,DELETE"
+  #  objs: ALL_IN_SCHEMA
+  #  schema: "schema_name"
+  #  type: "table"
+  ##
+  ## \c <database_name>
+  ## GRANT USAGE,SELECT,UPDATE ON ALL SEQUENCES IN SCHEMA <schema_name> TO <user_name>
+  # - database: "database_name"
+  #  roles: "user_name"
+  #  privs: "USAGE,SELECT,UPDATE"
+  #  objs: ALL_IN_SCHEMA
+  #  schema: "schema_name"
+  #  type: sequence
+  ##
+  ## \c postgres
+  ## GRANT user_group_1,user_group_2 TO user_role;
+  # - database: "postgres"
+  #  roles: "user_role"
+  #  objs: "user_group_1,user_group_2"
+  #  type: "group"
 
-
-  postgresql_roles: []
-    ## An user
-    #- name: "user_name"
-    #  password: "user_password"
-    #  role_attr_flags: "user_role_attr_flags"
-    #  state: "user_state"
-    ## A group
-    #- name: "group_name"
-    #  role_attr_flags: "user_role_attr_flags"
-    #  state: "user_state"
-
-  postgresql_privileges: []
-    ## \c <database_name>
-    ## GRANT <user_privs> ON <objs> IN SCHEMA <schema_name> TO <user_name>
-    #- database: "database_name"
-    #  roles: "user_name"
-    #  privs: "user_privs"
-    #  objs: ALL_IN_SCHEMA
-    #  schema: "schema_name"
-    ##
-    ## \c <database_name>
-    ## GRANT SELECT,UPDATE,INSERT,DELETE ON ALL TABLES IN SCHEMA <schema_name> TO <user_name>
-    #- database: "database_name"
-    #  roles: "user_name"
-    #  privs: "SELECT,UPDATE,INSERT,DELETE"
-    #  objs: ALL_IN_SCHEMA
-    #  schema: "schema_name"
-    #  type: "table"
-    ##
-    ## \c <database_name>
-    ## GRANT USAGE,SELECT,UPDATE ON ALL SEQUENCES IN SCHEMA <schema_name> TO <user_name>
-    #- database: "database_name"
-    #  roles: "user_name"
-    #  privs: "USAGE,SELECT,UPDATE"
-    #  objs: ALL_IN_SCHEMA
-    #  schema: "schema_name"
-    #  type: sequence
-    ##
-    ## \c postgres
-    ## GRANT user_group_1,user_group_2 TO user_role;
-    #- database: "postgres"
-    #  roles: "user_role"
-    #  objs: "user_group_1,user_group_2"
-    #  type: "group"
-
-  #postgresql_hba_entries: []
-    #- database: "hcd_dba"
-    #  - host_based_authentications:
-    #    - type: "host"
-    #      user: "users"
-    #      address: "ip_address_or_host_name"
-    #      auth_method: "auth_method"
+# postgresql_hba_entries: []
+  # - database: "hcd_dba"
+  #  - host_based_authentications:
+  #    - type: "host"
+  #      user: "users"
+  #      address: "ip_address_or_host_name"
+  #      auth_method: "auth_method"

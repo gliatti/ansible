@@ -1,58 +1,71 @@
-# ansible/roles/ansible/tasks/local_adding_vm_recently_created.yml
 ---
-  - name: "Setting content with project"
-    set_fact:
-      content_to_inject: ""
-  
-  - name: "Test for {{ param_project_name }} existence"
-    local_action: shell grep "# {{ param_project_name }}" "/home/rpor/ansible/Projects/environments/admin/production/group_vars/ansible/vars.yml"
-    register: existence
-    ignore_errors: yes
+- name: "Setting content with project"
+  ansible.builtin.set_fact:
+    content_to_inject: ""
 
-  
-  - name: "Setting content with project"
-    set_fact:
-      content_to_inject: "    - name: \"{{ param_project_name }}\"\n      groups:\n        # {{ param_project_name }}"
-      inject_after: "ansible_inventorie:"
-    when: existence.stdout == ""
-  
-  - name: "Test for {{ param_group_name }} existence"
-    local_action: shell grep "# {{ param_project_name }}/{{ param_group_name }}" "/home/rpor/ansible/Projects/environments/admin/production/group_vars/ansible/vars.yml"
-    register: existence
-    ignore_errors: yes
-  
-  - name: "Setting content with group"
-    set_fact:
-      content_to_inject: "{{ content_to_inject}}\n        - name: \"{{ param_group_name }}\"\n          hostnames:\n            # {{ param_project_name }}/{{ param_group_name }}"
-      inject_after: "# {{ param_project_name }}"
-    when: existence.stdout == ""
-  
-  - name: "Test for {{ param_host_name }} existence"
-    local_action: shell grep "# {{ param_project_name }}/{{ param_group_name }}/{{ param_host_name }}" "/home/rpor/ansible/Projects/environments/admin/production/group_vars/ansible/vars.yml"
-    register: existence
-    ignore_errors: yes
-  
-  - name: "Setting content with {{ param_host_name }}"
-    set_fact:
-      content_to_inject: "{{ content_to_inject}}\n            # {{ param_project_name }}/{{ param_group_name }}/{{ param_host_name }}\n            - name: \"{{ param_host_name }}\""
-      inject_after: "# {{ param_project_name }}/{{ param_group_name }}"
-    when: existence.stdout == ""
-    
-  - name: "debug"
-    debug:
-      var: inject_after
-    
-  #- name: "Adding hostname {{ param_host_name }} to {{ param_group_name }} group of the environment {{ param_project_name }}"
-  #  blockinfile:
-  #    path: "{{ ansible_inventories_path }}/admin/production/group_vars/ansible/vars.yml"
-  #    insertafter: "{{ inject_after }}"
-  #    block: "{{ content_to_inject }}"
-  #  when: inject_after is defined or inject_after != ""
-    
-  - name: "Adding hostname {{ param_host_name }} to {{ param_group_name }} group of the environment {{ param_project_name }}"
-    local_action:
-      module: blockinfile
-      path: "/home/rpor/ansible/Projects/environments/admin/production/group_vars/ansible/vars.yml"
-      insertbefore: "{{ inject_after }}"
-      block: "{{ content_to_inject }}"
-    when: inject_after is defined
+- name: "Vérification de l'existence du projet {{ param_project_name }}"
+  ansible.builtin.command: >-
+    grep "# {{ param_project_name }}"
+    "{{ ansible_inventories_path }}/admin/production/group_vars/ansible/vars.yml"
+  delegate_to: localhost
+  register: existence
+  failed_when: false
+  changed_when: false
+
+- name: "Setting content with project"
+  ansible.builtin.set_fact:
+    content_to_inject: "    - name: \"{{ param_project_name }}\"\n      groups:\n        # {{ param_project_name }}"
+    inject_after: "ansible_inventorie:"
+  when: existence.stdout == ""
+
+- name: "Vérification de l'existence du groupe {{ param_group_name }}"
+  ansible.builtin.command: >-
+    grep "# {{ param_project_name }}/{{ param_group_name }}"
+    "{{ ansible_inventories_path }}/admin/production/group_vars/ansible/vars.yml"
+  delegate_to: localhost
+  register: existence
+  failed_when: false
+  changed_when: false
+
+- name: "Setting content with group"
+  ansible.builtin.set_fact:
+    content_to_inject: "{{ content_to_inject }}\n        - name: \"{{ param_group_name }}\"\n          hostnames:\n            # {{ param_project_name }}/\
+      {{ param_group_name }}"
+    inject_after: "# {{ param_project_name }}"
+  when: existence.stdout == ""
+
+- name: "Vérification de l'existence de l'hôte {{ param_host_name }}"
+  ansible.builtin.command: >-
+    grep "# {{ param_project_name }}/{{ param_group_name }}/{{ param_host_name }}"
+    "{{ ansible_inventories_path }}/admin/production/group_vars/ansible/vars.yml"
+  delegate_to: localhost
+  register: existence
+  failed_when: false
+  changed_when: false
+
+- name: "Setting content with {{ param_host_name }}"
+  ansible.builtin.set_fact:
+    content_to_inject: "{{ content_to_inject }}\n            # {{ param_project_name }}/{{ param_group_name }}/\
+      {{ param_host_name }}\n            - name: \"{{ param_host_name }}\""
+    inject_after: "# {{ param_project_name }}/{{ param_group_name }}"
+  when: existence.stdout == ""
+
+- name: "debug"
+  ansible.builtin.debug:
+    var: inject_after
+    verbosity: 1
+
+# - name: "Adding hostname {{ param_host_name }} to {{ param_group_name }} group of the environment {{ param_project_name }}"
+#   blockinfile:
+#     path: "{{ ansible_inventories_path }}/admin/production/group_vars/ansible/vars.yml"
+#     insertafter: "{{ inject_after }}"
+#     block: "{{ content_to_inject }}"
+#   when: inject_after is defined or inject_after != ""
+
+- name: "Ajout de l'hôte dans l'inventaire ansible : {{ param_project_name ~ '/' ~ param_group_name ~ '/' ~ param_host_name }}"
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_inventories_path }}/admin/production/group_vars/ansible/vars.yml"
+    insertbefore: "{{ inject_after }}"
+    block: "{{ content_to_inject }}"
+  delegate_to: localhost
+  when: inject_after is defined

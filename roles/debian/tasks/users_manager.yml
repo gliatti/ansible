@@ -1,0 +1,13 @@
+---
+- name: "Gestion des utilisateurs debian"
+  ansible.builtin.user:
+    name: "{{ debian_user.name }}"
+    groups: "{{ debian_user.groups | default(omit) }}"
+    shell: "{{ debian_user.shell | default('/bin/bash') }}"
+    state: "{{ debian_user.state | default('present') }}"
+  loop: "{{ debian_users }}"
+  loop_control:
+    loop_var: debian_user
+  when:
+    - debian_users is defined
+    - debian_users | length > 0

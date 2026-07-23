@@ -1,7 +1,7 @@
 ---
-  - name: "{{ file_path }} : remplace la regexp {{ parameter_regexp }} par {{ parameter_value }}"
-    lineinfile:
-      path: "{{ file_path }}"
-      regexp: "{{ parameter_regexp }}"
-      line: "{{ parameter_value }}"
-      state: present
+- name: "Remplacement par expression régulière dans {{ file_path ~ ' : ' ~ parameter_regexp ~ ' -> ' ~ parameter_value }}"
+  ansible.builtin.lineinfile:
+    path: "{{ file_path }}"
+    regexp: "{{ parameter_regexp }}"
+    line: "{{ parameter_value }}"
+    state: present

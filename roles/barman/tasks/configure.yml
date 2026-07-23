@@ -1,40 +1,37 @@
-  - name: "debug barman_server_configuration"
-    debug:
-      var: barman_server_configuration
+---
+- name: Configuration de Barman pour le serveur postgresql
+  ansible.builtin.template:
+    src: postgresql_server.conf.j2
+    dest: "{{ barman_server_config_files_directory }}/{{ item.name }}.conf"
+    mode: "0644"
+  loop: "{{ barman_server_configuration }}"
+  tags: barman-configure
 
-  - name: Configuration de Barman pour le serveur postgresql
-    template:
-      src: postgresql_server.conf.j2
-      dest: "{{ barman_server_config_files_directory }}/{{ item.name }}.conf"
-      mode: 0644
-    with_items: "{{ barman_server_configuration }}"
-    tags: barman-configure
+- name: "ajout des informations de connexions dans le .pgpass pour l'utilisateur {{ barman_user_name }}"
+  ansible.builtin.lineinfile:
+    path: "{{ barman_pgpass_file }}"
+    line: "{{ item.host_name }}:{{ item.port_number }}:postgres:{{ barman_user_name }}:{{ item.super_user_password }}"
+  loop: "{{ barman_server_configuration }}"
+  tags: barman-configure
 
-  - name : ajout des informations de connexions dans le .pgpass pour l'utilisateur {{ barman_user_name }}
-    lineinfile:
-      path: "{{ barman_pgpass_file }}"
-      line: "{{ item.host_name }}:{{ item.port_number }}:postgres:{{ barman_user_name }}:{{ item.super_user_password }}"
-    with_items: "{{ barman_server_configuration }}"
-    tags: barman-configure
+- name: "ajout des informations de connexions dans le .pgpass pour l'utilisateur {{ streaming_barman_user_name }}"
+  ansible.builtin.lineinfile:
+    path: "{{ barman_pgpass_file }}"
+    line: "{{ item.host_name }}:{{ item.port_number }}:postgres:{{ streaming_barman_user_name }}:{{ item.streaming_user_password }}"
+  loop: "{{ barman_server_configuration }}"
+  tags: barman-configure
 
-  - name : "ajout des informations de connexions dans le .pgpass pour l'utilisateur {{ streaming_barman_user }}"
-    lineinfile:
-      path: "{{ barman_pgpass_file }}"
-      line: "{{ item.host_name }}:{{ item.port_number }}:postgres:{{ streaming_barman_user_name}}:{{ item.streaming_user_password }}"
-    with_items: "{{ barman_server_configuration }}"
-    tags: barman-configure
-
-  - name: Création du job de de backups pour barman
-    cron:
-      user: "{{ barman_user_name }}"
-      name: "{{ item.description }} : {{ item.name }}"
-      cron_file: barman
-      job: "/usr/bin/barman backup {{ item.name }} >> {{ barman_log_directory }}/{{ item.name }}.log"
-      state: present
-      disabled: "{{ item.cron_disabled }}"
-      minute: "{{ item.cron_schedule.minute }}"
-      hour: "{{ item.cron_schedule.hour }}"
-      day: "{{ item.cron_schedule.day }}"
-      month: "{{ item.cron_schedule.month }}"
-      weekday: "{{ item.cron_schedule.weekday }}"
-    with_items: "{{ barman_server_configuration }}"
+- name: Création du job de de backups pour barman
+  ansible.builtin.cron:
+    user: "{{ barman_user_name }}"
+    name: "{{ item.description }} : {{ item.name }}"
+    cron_file: barman
+    job: "/usr/bin/barman backup {{ item.name }} >> {{ barman_log_directory }}/{{ item.name }}.log"
+    state: present
+    disabled: "{{ item.cron_disabled }}"
+    minute: "{{ item.cron_schedule.minute }}"
+    hour: "{{ item.cron_schedule.hour }}"
+    day: "{{ item.cron_schedule.day }}"
+    month: "{{ item.cron_schedule.month }}"
+    weekday: "{{ item.cron_schedule.weekday }}"
+  loop: "{{ barman_server_configuration }}"

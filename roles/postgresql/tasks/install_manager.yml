@@ -1,4 +1,3 @@
-# ansible/roles/postgresql/tasks/install_manager.yml
 ---
-  - name: Add the PGDG repository for {{ ansible_os_family }}
-    ansible.builtin.include_tasks: '{{ ansible_os_family }}/install.yml'
+- name: Add the PGDG repository for {{ ansible_os_family }}
+  ansible.builtin.include_tasks: '{{ ansible_os_family }}/install.yml'

@@ -1,0 +1,9 @@
+---
+- name: "Configuration globale de git"
+  community.general.git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  become: true
+  become_user: "{{ git_config_user }}"
+  loop: "{{ git_config_options }}"

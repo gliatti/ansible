@@ -1,15 +1,14 @@
-# ansible/roles/postgresql/tasks/hba_manager.yml
 ---
-  - name: Configure host based authentication (if entries are configured).
-    template:
-      src: "pg_hba.conf.j2"
-      dest: "{{ postgresql_pgdata_main_directory }}/pg_hba.conf"
-      owner: "{{ postgresql_sys_user }}"
-      group: "{{ postgresql_sys_group }}"
-      mode: 0600
-    when: postgresql_hba_entries is defined
+- name: "Chargement des variables spécifiques à la distribution"
+  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
+  when: ansible_os_family == 'RedHat'
 
-  - name: "reload postgresql"
-    service:
-      name: "postgresql"
-      state: "reloaded"
+- name: Configure host based authentication (if entries are configured).
+  ansible.builtin.template:
+    src: "pg_hba.conf.j2"
+    dest: "{{ postgresql_pgdata_main_directory }}/pg_hba.conf"
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "0600"
+  when: postgresql_hba_entries is defined
+  notify: "Reload postgresql"

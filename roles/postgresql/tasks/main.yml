@@ -1,15 +1,27 @@
-# ansible/roles/postgresql/tasks/main.yml
 ---
-  - import_tasks: prerequisites.yml
-  - import_tasks: pg_pass_manager.yml
-    when: pg_pass is defined
-  - import_tasks: hba_manager.yml
-    when: postgresql_hba_entries is defined
-  - import_tasks: roles_manager.yml
-    when: postgresql_roles is defined
-  - import_tasks: databases_manager.yml
-    when: postgresql_databases is defined
-  - import_tasks: extensions_manager.yml
-    when: postgresql_databases is defined
-  - import_tasks: privileges_manager.yml
-    when: postgresql_privileges is defined
+- name: Manage postgresql prerequisites
+  ansible.builtin.import_tasks: prerequisites.yml
+
+- name: Manage pgpass authentication
+  ansible.builtin.import_tasks: pg_pass_manager.yml
+  when: pg_pass is defined
+
+- name: Manage host based authentication
+  ansible.builtin.import_tasks: hba_manager.yml
+  when: postgresql_hba_entries is defined
+
+- name: Manage postgresql roles
+  ansible.builtin.import_tasks: roles_manager.yml
+  when: postgresql_roles is defined
+
+- name: Manage postgresql databases
+  ansible.builtin.import_tasks: databases_manager.yml
+  when: postgresql_databases is defined
+
+- name: Manage postgresql extensions
+  ansible.builtin.import_tasks: extensions_manager.yml
+  when: postgresql_databases is defined
+
+- name: Manage postgresql privileges
+  ansible.builtin.import_tasks: privileges_manager.yml
+  when: postgresql_privileges is defined

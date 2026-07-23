@@ -16,5 +16,5 @@ barman_cron_schedule:
   day: "*"
   weekday: "*"
   month: "*"
-  
+
 barman_cron_disabled: false

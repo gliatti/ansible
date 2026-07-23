@@ -1,8 +1,12 @@
-# ansible/roles/pgbouncer/tasks/main.yml
 ---
-  - import_tasks: hba_manager.yml
-    when: pgbouncer_hba_entries is defined
-  - import_tasks: database_entries_manager.yml
-    when: pgbouncer_database_entries is defined
-  - import_tasks: userlist_manager.yml
-    when: pgbouncer_userlist is defined
+- name: "Gestion de l'authentification host based"
+  ansible.builtin.import_tasks: hba_manager.yml
+  when: pgbouncer_hba_entries is defined
+
+- name: "Gestion des bases de données"
+  ansible.builtin.import_tasks: database_entries_manager.yml
+  when: pgbouncer_database_entries is defined
+
+- name: "Gestion de la userlist"
+  ansible.builtin.import_tasks: userlist_manager.yml
+  when: pgbouncer_userlist is defined

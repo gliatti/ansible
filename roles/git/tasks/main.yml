@@ -1,0 +1,6 @@
+---
+- name: "Inclusion de l'installation de git"
+  ansible.builtin.import_tasks: install_manager.yml
+
+- name: "Inclusion de la configuration de git"
+  ansible.builtin.import_tasks: config_manager.yml

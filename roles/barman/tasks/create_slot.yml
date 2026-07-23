@@ -1,12 +1,19 @@
 ---
-  - name: "création du slot {{ barman_slot_name }} sur le serveur postgres"
-    shell: sudo su {{ barman_user_name }} -c "/usr/bin/barman receive-wal --create-slot {{ item.name }}"
-    ignore_errors: yes    
-    with_items: "{{ barman_server_configuration }}"
-    tags: barman-configure
+- name: "Création du slot postgres {{ barman_slot_name }}"
+  ansible.builtin.command: "/usr/bin/barman receive-wal --create-slot {{ item.name }}"
+  become: true
+  become_user: "{{ barman_user_name }}"
+  register: barman_create_slot_result
+  changed_when: "'created' in barman_create_slot_result.stdout | lower"
+  failed_when: false
+  loop: "{{ barman_server_configuration }}"
+  tags: barman-configure
 
-  - name: "Vérification de la configuration barman {{ barman_slot_name }} sur le serveur item.name"
-    shell: sudo su {{ barman_user_name }} -c "/usr/bin/barman check {{ item.name }}"
-    ignore_errors: yes    
-    with_items: "{{ barman_server_configuration }}"
-    tags: barman-configure
+- name: "Vérification de la configuration barman sur le serveur {{ item.name }}"
+  ansible.builtin.command: "/usr/bin/barman check {{ item.name }}"
+  become: true
+  become_user: "{{ barman_user_name }}"
+  changed_when: false
+  failed_when: false
+  loop: "{{ barman_server_configuration }}"
+  tags: barman-configure

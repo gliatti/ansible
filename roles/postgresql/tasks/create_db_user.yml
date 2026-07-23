@@ -1,0 +1,11 @@
+---
+- name: "Création de l'utilisateur de base de données {{ user_name }}"
+  community.postgresql.postgresql_user:
+    name: "{{ user_name }}"
+    password: "{{ user_password }}"
+    role_attr_flags: "{{ user_roles }}"
+    login_user: "postgres"
+  become: true
+  become_user: "postgres"
+  vars:
+    ansible_ssh_pipelining: "true"

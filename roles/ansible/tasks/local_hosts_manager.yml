@@ -1,53 +1,46 @@
-# ansible/roles/ansible/tasks/hosts_manager.yml
 ---
-  - name: "Copy environment to ansible"
-    local_action:
-      module: copy
-      src: "ansible/environment/"
-      dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}"
-      owner: "{{ ansible_owner }}"
-      group: "{{ ansible_group }}"
-      mode: "1777"
-      force: false
-      
-  - name: "Copy group_vars to ansible"
-    local_action:
-      module: copy
-      src: "ansible/group_var/"
-      dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}/group_vars/{{ current_group.name }}"
-      owner: "{{ ansible_owner }}"
-      group: "{{ ansible_group }}"
-      mode: "1777"
-      force: false
-    with_items:
-      - "{{ ansible_current_groups }}"
-    loop_control:
-      loop_var: current_group      
-  
-  - name: "Copy host_vars to ansible"
-    local_action:
-      module: copy
-      src: "ansible/group_var/"
-      dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}/host_vars/{{ current_group.1.name }}"
-      owner: "{{ ansible_owner }}"
-      group: "{{ ansible_group }}"
-      mode: "1777"
-      force: false
-    with_subelements:
-      - "{{ ansible_current_groups }}"
-      - hostnames
-    loop_control:
-      loop_var: current_group
-      
-  - name: Configure ansible hosts.
-    local_action:
-      module: template
-      src: "inventory.j2"
-      dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}/inventory"
-      owner: "{{ ansible_owner }}"
-      group: "{{ ansible_group }}"
-      mode: "0777"
-    when: ansible_current_groups is defined
-        
-      
-    
+- name: "Copy environment to ansible"
+  ansible.builtin.copy:
+    src: "ansible/environment/"
+    dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}"
+    owner: "{{ ansible_owner }}"
+    group: "{{ ansible_group }}"
+    mode: "1777"
+    force: false
+  delegate_to: localhost
+
+- name: "Copy group_vars to ansible"
+  ansible.builtin.copy:
+    src: "ansible/group_var/"
+    dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}/group_vars/{{ current_group.name }}"
+    owner: "{{ ansible_owner }}"
+    group: "{{ ansible_group }}"
+    mode: "1777"
+    force: false
+  delegate_to: localhost
+  loop: "{{ ansible_current_groups }}"
+  loop_control:
+    loop_var: current_group
+
+- name: "Copy host_vars to ansible"
+  ansible.builtin.copy:
+    src: "ansible/group_var/"
+    dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}/host_vars/{{ current_group.1.name }}"
+    owner: "{{ ansible_owner }}"
+    group: "{{ ansible_group }}"
+    mode: "1777"
+    force: false
+  delegate_to: localhost
+  loop: "{{ ansible_current_groups | subelements('hostnames') }}"
+  loop_control:
+    loop_var: current_group
+
+- name: Configure ansible hosts.
+  ansible.builtin.template:
+    src: "inventory.j2"
+    dest: "{{ ansible_inventories_path }}/{{ ansible_current_inventory_file }}/inventory"
+    owner: "{{ ansible_owner }}"
+    group: "{{ ansible_group }}"
+    mode: "0777"
+  delegate_to: localhost
+  when: ansible_current_groups is defined

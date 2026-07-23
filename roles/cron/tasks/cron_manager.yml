@@ -1,6 +1,6 @@
-# ansible/roles/cron/tasks/cron_manager.yml
+---
 - name: "Gestion des crons"
-  cron:
+  ansible.builtin.cron:
     user: "{{ cron_schedule.user }}"
     name: "{{ cron_schedule.name }}"
     cron_file: "{{ cron_schedule.cron_file }}"
@@ -12,18 +12,16 @@
     day: "{{ cron_schedule.day }}"
     month: "{{ cron_schedule.month }}"
     weekday: "{{ cron_schedule.weekday }}"
-  with_items:
-    - "{{ cron_schedules }}"
+  loop: "{{ cron_schedules }}"
   loop_control:
     loop_var: cron_schedule
 
 - name: "Gestion des droits des fichiers crons"
-  file:
-    path: "{{ cron_schedule.cron_file}}"
+  ansible.builtin.file:
+    path: "/etc/cron.d/{{ cron_schedule.cron_file }}"
     owner: "{{ cron_schedule.user }}"
-    group: "crontab"
+    group: "{{ cron_file_group }}"
     mode: "0644"
-  with_items:
-    - "{{ cron_schedules }}"
+  loop: "{{ cron_schedules }}"
   loop_control:
     loop_var: cron_schedule

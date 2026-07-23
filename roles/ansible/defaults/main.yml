@@ -1,15 +1,14 @@
-# ansible/roles/ansibles/defaults/main.yml
 ---
-  # ansible_owner: ""
-  # ansible_group: ""
-  # ansible_inventories_path: ""
-  # ansible_inventories:
-  #   - name: "admin/production"
-  #     groups:
-  #       # admin/production
-  #       - name: "ansible"
-  #         # admin/production/ansible
-  #         hostnames:
-  #           # admin/production/ansible/localhost
-  #           - ansible_line: "localhost_for_ansible ansible_connection=local"
-  #             name: "localhost"
+# ansible_owner: ""
+# ansible_group: ""
+# ansible_inventories_path: ""
+# ansible_inventories:
+#   - name: "admin/production"
+#     groups:
+#       # admin/production
+#       - name: "ansible"
+#         # admin/production/ansible
+#         hostnames:
+#           # admin/production/ansible/localhost
+#           - ansible_line: "localhost_for_ansible ansible_connection=local"
+#             name: "localhost"

@@ -1,56 +1,49 @@
-# ansible/roles/postgresql/tasks/Debian/install.yml
 ---
-  - name: "Adding postgres key"
-    apt_key:
-      url: "{{ postgresql_repository_signing_key_url }}"
-      state: "present"
+- name: "Adding postgres key"
+  ansible.builtin.apt_key:
+    url: "{{ postgresql_repository_signing_key_url }}"
+    state: "present"
 
-  - name: "Adding postgres repo"
-    apt_repository:
-      filename: "{{ postgresql_repository_list_name }}"
-      repo: "deb {{ postgresql_repository }} {{ ansible_distribution_release }}-{{ postgresql_repository_list_name }} main"
-      state: "present"
+- name: "Adding postgres repo"
+  ansible.builtin.apt_repository:
+    filename: "{{ postgresql_repository_list_name }}"
+    repo: "deb {{ postgresql_repository }} {{ ansible_distribution_release }}-{{ postgresql_repository_list_name }} main"
+    state: "present"
 
-  - name: "Install postgresql-common"
-    apt:
-      name: "postgresql-common"
+- name: "Install postgresql-common"
+  ansible.builtin.apt:
+    name: "postgresql-common"
 
-  - name: Configure default behavior
-    lineinfile:
-      dest: "/etc/postgresql-common/createcluster.conf"
-      regexp: "^#?{{ current_postgresql_debian_createcluster_option.option }}.+$"
-      line: "{{ current_postgresql_debian_createcluster_option.option }} = {{ current_postgresql_debian_createcluster_option.value }}"
-      state: "{{ current_postgresql_debian_createcluster_option.state | default('present') }}"
-    with_items:
-      - "{{ postgresql_debian_createcluster_options }}"
-    loop_control:
-      loop_var: current_postgresql_debian_createcluster_option
+- name: Configure default behavior
+  ansible.builtin.lineinfile:
+    dest: "/etc/postgresql-common/createcluster.conf"
+    regexp: "^#?{{ current_postgresql_debian_createcluster_option.option }}.+$"
+    line: "{{ current_postgresql_debian_createcluster_option.option }} = {{ current_postgresql_debian_createcluster_option.value }}"
+    state: "{{ current_postgresql_debian_createcluster_option.state | default('present') }}"
+  loop: "{{ postgresql_debian_createcluster_options }}"
+  loop_control:
+    loop_var: current_postgresql_debian_createcluster_option
 
-  - name: "Install postgresql packages"
-    apt:
-      name: "{{ postgresql_packages }}"
+- name: "Install postgresql packages"
+  ansible.builtin.apt:
+    name: "{{ postgresql_packages }}"
 
-  - name: "Creating PGDATA directory"
-    file:
-      state: directory
-      path: "{{ postgresql_pgdata_main_directory }}"
-      owner: "{{ postgresql_sys_user }}"
-      group: "{{ postgresql_sys_group }}"
-      mode: "1700"
+- name: "Creating PGDATA directory"
+  ansible.builtin.file:
+    state: directory
+    path: "{{ postgresql_pgdata_main_directory }}"
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "1700"
 
-  - name: Check if PostgreSQL database is initialized.
-    stat:
-      path: "{{ postgresql_pgdata_main_directory }}/PG_VERSION"
-    register: pgdata_dir_version
+- name: Check if PostgreSQL database is initialized.
+  ansible.builtin.stat:
+    path: "{{ postgresql_pgdata_main_directory }}/PG_VERSION"
+  register: pgdata_dir_version
 
-  - name: "Launching initdb"
-    command: "pg_createcluster {{ postgresql_version }} main -d {{ postgresql_pgdata_main_directory }}"
-    when: not pgdata_dir_version.stat.exists
-    vars:
-      ansible_ssh_pipelining: "true"
-
-  - name: "restart postgresql"
-    service:
-      name: "postgresql"
-      state: "restarted"
-      enabled: true
+- name: "Launching initdb"
+  ansible.builtin.command: "pg_createcluster {{ postgresql_version }} main -d {{ postgresql_pgdata_main_directory }}"
+  when: not pgdata_dir_version.stat.exists
+  vars:
+    ansible_ssh_pipelining: "true"
+  notify: "Restart postgresql"

@@ -1,0 +1,5 @@
+---
+- name: "Installation des paquets gpg"
+  ansible.builtin.package:
+    name: "{{ gpg_packages }}"
+    state: present

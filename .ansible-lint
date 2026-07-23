@@ -1,0 +1,14 @@
+---
+profile: moderate
+
+exclude_paths:
+  - roles/zabbix/
+  - hosts
+  - offline-hosts
+  - ansible.cfg.dpkg-dist
+  - inventories/
+  - "*.tar.gz"
+
+skip_list:
+  - name[casing]
+  - var-naming[no-role-prefix]

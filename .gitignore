@@ -1,3 +1,7 @@
 # Ignore all retry files
 *.retry
 .vagrant
+# Collections installed locally by the Docker test harness
+.collections/
+# Collection build tarballs
+*.tar.gz

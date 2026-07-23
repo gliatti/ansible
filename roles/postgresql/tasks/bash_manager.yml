@@ -1,9 +1,8 @@
-# ansible/roles/postgresql/tasks/bash_manager.yml
 ---
-  - name: "Configure .bashrc"
-    template:
-      src: ".bashrc.j2"
-      dest: "/var/lib/postgresql/.bashrc"
-      owner: "{{ postgresql_sys_user }}"
-      group: "{{ postgresql_sys_group }}"
-      mode: "0700"
+- name: "Configure .bashrc"
+  ansible.builtin.template:
+    src: ".bashrc.j2"
+    dest: "{{ postgresql_home_directory }}/.bashrc"
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "0700"

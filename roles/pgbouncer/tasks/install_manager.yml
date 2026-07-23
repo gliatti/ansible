@@ -1,5 +1,5 @@
-# ansible/roles/postgresql/tasks/install_manager.yml
 ---
-  - name: "Install pgbouncer packages"
-    apt:
-      name: "{{ pgbouncer_packages }}"
+- name: "Install pgbouncer packages"
+  ansible.builtin.package:
+    name: "{{ pgbouncer_packages }}"
+    state: "present"

@@ -1,10 +1,9 @@
-# ansible/roles/postgresql/tasks/pgpass_manager.yml
 ---
-  - name: "Configure pgpass authentication (if entries are configured)"
-    template:
-      src: ".pgpass.j2"
-      dest: "{{ postgresql_home_directory }}/.pgpass"
-      owner: "{{ postgresql_sys_user }}"
-      group: "{{ postgresql_sys_group }}"
-      mode: 0600
-    when: pg_pass is defined
+- name: "Configure pgpass authentication (if entries are configured)"
+  ansible.builtin.template:
+    src: ".pgpass.j2"
+    dest: "{{ postgresql_home_directory }}/.pgpass"
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "0600"
+  when: pg_pass is defined

@@ -1,0 +1,8 @@
+---
+# Répertoire de base de la PKI git (cohérent avec roles/ssh qui référence
+# /etc/pki/git/.ssh/id_rsa)
+pki_base_directory: "/etc/pki/git"
+pki_key_owner: "root"
+pki_key_group: "root"
+pki_key_type: "rsa"
+pki_key_bits: 2048

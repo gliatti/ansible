@@ -1,0 +1,7 @@
+---
+- name: "Inclusion de l'installation de gpg"
+  ansible.builtin.import_tasks: install_manager.yml
+
+- name: "Vérification de la version de gpg"
+  ansible.builtin.command: gpg --version
+  changed_when: false

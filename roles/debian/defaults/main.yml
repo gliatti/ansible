@@ -1,0 +1,30 @@
+---
+# Variables du rôle debian (surchargeables)
+
+# Utilisateurs à gérer sur les serveurs Debian.
+debian_users: []
+  # debian_users:
+  #   - name: "exploit"
+  #     groups: "sudo"
+  #     shell: "/bin/bash"
+  #     state: "present"
+
+# Répertoires à créer sur les serveurs Debian.
+debian_directories: []
+  # debian_directories:
+  #   - path: "/opt/exploit"
+  #     owner: "root"
+  #     group: "root"
+  #     mode: "0755"
+
+# Options de durcissement du démon sshd.
+# ATTENTION : ne jamais placer ici PasswordAuthentication ni
+# PubkeyAuthentication (risque de coupure de l'accès vagrant).
+debian_security_sshd_options:
+  - option: "PermitRootLogin"
+    value: "no"
+  - option: "X11Forwarding"
+    value: "no"
+
+# Composants des dépôts apt utilisés pour le durcissement des sources list.
+debian_sources_components: "main contrib non-free non-free-firmware"

@@ -1,71 +1,72 @@
-# file: ansible/inventory/barman/roles/install/main.yml
-  - name: Managing barman package presence
-    package:
-      name: barman
-      state: present
-    tags: barman-install
-       
-  - name: "Création du répertoire {{ barman_home_directory }}"
-    file:
-      path: "{{ barman_home_directory }}"
-      state: directory
-      force: no
-      group: barman
-      owner: barman
-      mode: 0755
-    tags: barman-install
-       
-  - name: "Création du répertoire {{ barman_log_directory }}"
-    file:
-      path: "{{ barman_log_directory }}"
-      state: directory
-      force: no
-      group: barman
-      owner: barman
-      mode: 0755
-    tags: barman-install
-  
-  - name: "Changement du home de l'utilisateur {{ barman_user_name }} côté systême"
-    user:
-      name: "{{ barman_user_name }}"
-      home: "{{ barman_home_directory }}"
-      state: present
-    tags: barman-install
-  
-  - name : "Modification de la ligne commençant par barman_home par 'barman_home = {{ barman_home_directory }}' dans le fichier {{ barman_conf_file }}"
-    lineinfile:
-      path: "{{ barman_conf_file }}"
-      regexp: "^barman_home"
-      line: "barman_home = {{ barman_home_directory }}"
-    tags: barman-install
-     
-  - name : "Modification de la ligne commençant par log_file par 'log_file = {{ barman_log_file }}' dans le fichier {{ barman_conf_file }}"
-    lineinfile:
-      path: "{{ barman_conf_file }}"
-      regexp: "^log_file"
-      line: "log_file = {{ barman_log_file }}"
-    tags: barman-install
-  
-  - name: "Création du fichier {{ barman_pgpass_file }}"
-    copy:
-      content: ""
-      dest: "{{ barman_pgpass_file }}"
-      force: no
-      group: barman
-      owner: barman
-      mode: 0600
-    tags: barman-install
-  
-  - name: "Création du cron 'barman cron'"
-    cron:
-      user: "{{ barman_user_name }}"
-      name: "barman cron"
-      cron_file: barman
-      job: "/usr/bin/barman cron >> {{ barman_log_directory }}/cron.log"
-      state: present
-      disabled: "{{ barman_cron_disabled }}"
-      minute: "{{ barman_cron_schedule.minute }}"
-      hour: "{{ barman_cron_schedule.hour | default(omit) }}"
-      day: "{{ barman_cron_schedule.day | default(omit) }}"
-      month: "{{ barman_cron_schedule.month | default(omit) }}"
-      weekday: "{{ barman_cron_schedule.weekday | default(omit) }}"
+---
+- name: Managing barman package presence
+  ansible.builtin.package:
+    name: barman
+    state: present
+  tags: barman-install
+
+- name: "Création du répertoire {{ barman_home_directory }}"
+  ansible.builtin.file:
+    path: "{{ barman_home_directory }}"
+    state: directory
+    force: false
+    group: barman
+    owner: barman
+    mode: "0755"
+  tags: barman-install
+
+- name: "Création du répertoire {{ barman_log_directory }}"
+  ansible.builtin.file:
+    path: "{{ barman_log_directory }}"
+    state: directory
+    force: false
+    group: barman
+    owner: barman
+    mode: "0755"
+  tags: barman-install
+
+- name: "Changement du home côté système de l'utilisateur {{ barman_user_name }}"
+  ansible.builtin.user:
+    name: "{{ barman_user_name }}"
+    home: "{{ barman_home_directory }}"
+    state: present
+  tags: barman-install
+
+- name: "Modification de la directive barman_home dans le fichier {{ barman_conf_file }}"
+  ansible.builtin.lineinfile:
+    path: "{{ barman_conf_file }}"
+    regexp: "^barman_home"
+    line: "barman_home = {{ barman_home_directory }}"
+  tags: barman-install
+
+- name: "Modification de la directive log_file dans le fichier {{ barman_conf_file }}"
+  ansible.builtin.lineinfile:
+    path: "{{ barman_conf_file }}"
+    regexp: "^log_file"
+    line: "log_file = {{ barman_log_file }}"
+  tags: barman-install
+
+- name: "Création du fichier {{ barman_pgpass_file }}"
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ barman_pgpass_file }}"
+    force: false
+    group: barman
+    owner: barman
+    mode: "0600"
+  tags: barman-install
+
+- name: "Création du cron 'barman cron'"
+  ansible.builtin.cron:
+    user: "{{ barman_user_name }}"
+    name: "barman cron"
+    cron_file: barman
+    job: "/usr/bin/barman cron >> {{ barman_log_directory }}/cron.log"
+    state: present
+    disabled: "{{ barman_cron_disabled }}"
+    minute: "{{ barman_cron_schedule.minute }}"
+    hour: "{{ barman_cron_schedule.hour | default(omit) }}"
+    day: "{{ barman_cron_schedule.day | default(omit) }}"
+    month: "{{ barman_cron_schedule.month | default(omit) }}"
+    weekday: "{{ barman_cron_schedule.weekday | default(omit) }}"
+  tags: barman-install

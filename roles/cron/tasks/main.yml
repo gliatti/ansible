@@ -1,4 +1,4 @@
-# ansible/roles/cron/tasks/main.yml
-
-- import_tasks: cron_manager.yml
+---
+- name: "Inclusion de la gestion des crons"
+  ansible.builtin.import_tasks: cron_manager.yml
   when: cron_schedules is defined

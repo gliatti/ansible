@@ -1,0 +1,4 @@
+---
+# Paquets à installer pour mysecureshell (disponibles côté Debian uniquement)
+mysecureshell_packages:
+  - mysecureshell

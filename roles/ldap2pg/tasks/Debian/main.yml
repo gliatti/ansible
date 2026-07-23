@@ -1,12 +1,12 @@
 # ansible/roles/ldap2pg/tasks/Debian/main.yml
 ---
-  - name: "Adding debian dalibo key"
-    ansible.builtin.apt_key:
-      url: "https://apt.dalibo.org/labs/debian-dalibo.gpg"
-      state: "present"
+- name: "Adding debian dalibo key"
+  ansible.builtin.apt_key:
+    url: "https://apt.dalibo.org/labs/debian-dalibo.gpg"
+    state: "present"
 
-  - name: "Adding dalibo-labs repo"
-    ansible.builtin.apt_repository:
-      filename: "dalibo-labs"
-      repo: "deb http://apt.dalibo.org/labs {{ ansible_distribution_release }}-dalibo main"
-      state: "present"
+- name: "Adding dalibo-labs repo"
+  ansible.builtin.apt_repository:
+    filename: "dalibo-labs"
+    repo: "deb http://apt.dalibo.org/labs {{ ansible_distribution_release }}-dalibo main"
+    state: "present"

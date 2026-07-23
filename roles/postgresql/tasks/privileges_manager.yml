@@ -1,15 +1,17 @@
-# roles/postgresql/tasks/privileges.yml
 ---
 - name: "Postgresql: managing roles privileges"
-  postgresql_privs:
+  community.postgresql.postgresql_privs:
     database: "{{ item.database }}"
     roles: "{{ item.roles }}"
-    objs: "{{ item.objs | default(omit)}}"
+    objs: "{{ item.objs | default(omit) }}"
     type: "{{ item.type }}"
-    privs: "{{ item.privs | default(omit)}}"
-    schema: "{{ item.schema | default(omit)}}"
+    privs: "{{ item.privs | default(omit) }}"
+    schema: "{{ item.schema | default(omit) }}"
     login_user: "{{ postgresql_default_owner }}"
-    login_password: "{{ vault_postgresql_password }}"
-  with_items:
-    - "{{ postgresql_privileges }}"
+    login_password: "{{ vault_postgresql_password | default(omit) }}"
+  loop: "{{ postgresql_privileges }}"
   when: postgresql_privileges is defined
+  become: true
+  become_user: "{{ postgresql_default_owner }}"
+  vars:
+    ansible_ssh_pipelining: "true"

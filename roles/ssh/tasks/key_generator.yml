@@ -1,8 +1,6 @@
-# ansible/roles/ssh/tasks/key_generator.yml
 ---
-  - name: Create a 2048-bit SSH key
-    shell: ssh-keygen -b 2048 -t rsa -f "{{ item.id_rsa_file_path }}" -q -N "" -C "{{ item.name }}"
-    args:
-      creates: "{{ item.id_rsa_file_path }}"
-    with_items:
-      - "{{ ssh_users }}"
+- name: Create a 2048-bit SSH key
+  ansible.builtin.command: ssh-keygen -b 2048 -t rsa -f "{{ item.id_rsa_file_path }}" -q -N "" -C "{{ item.name }}"
+  args:
+    creates: "{{ item.id_rsa_file_path }}"
+  loop: "{{ ssh_users }}"

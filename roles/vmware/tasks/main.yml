@@ -1,0 +1,14 @@
+---
+- name: "Avertissement provisioning VMware non implémenté"
+  ansible.builtin.debug:
+    msg: >-
+      Le provisioning des machines virtuelles VMware n'est pas implémenté dans
+      ce dépôt. Ce rôle est un placeholder ; la création réelle des VM est gérée
+      en dehors de ce projet.
+    verbosity: 0
+
+- name: "Vérification que vmware_guests est défini"
+  ansible.builtin.assert:
+    that:
+      - vmware_guests is defined
+    quiet: true

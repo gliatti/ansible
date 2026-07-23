@@ -1,0 +1,10 @@
+---
+vmware_guests: []
+  # - name: "vm_1"
+  #   ansible_project_name: "projet_1"
+  #   ansible_group_name: "groupe_1"
+  #   ansible_host_name: "hote_1"
+  # - name: "vm_2"
+  #   ansible_project_name: "projet_2"
+  #   ansible_group_name: "groupe_2"
+  #   ansible_host_name: "hote_2"

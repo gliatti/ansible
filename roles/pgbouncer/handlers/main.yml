@@ -1,0 +1,5 @@
+---
+- name: Reload pgbouncer
+  ansible.builtin.service:
+    name: "pgbouncer"
+    state: "reloaded"

@@ -1,0 +1,6 @@
+---
+- name: "Installation des paquets mysecureshell"
+  ansible.builtin.package:
+    name: "{{ mysecureshell_packages }}"
+    state: present
+  when: ansible_os_family == 'Debian'

@@ -1,9 +1,8 @@
-# ansible/roles/logrotate/defaults/main.yml
 ---
-  logrotate_owner: "root"
-  logrotate_group: "root"
-  logrotate_files_destination: "/etc/logrotate.d"
-  #logrotate_files:
+logrotate_owner: "root"
+logrotate_group: "root"
+logrotate_files_destination: "/etc/logrotate.d"
+  # logrotate_files:
   #  - name: "file1"
   #    regex:
   #      - "/etc/logrotate.d/vhosts"
