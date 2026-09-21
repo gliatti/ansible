@@ -1,4 +1,4 @@
 URI {{ ldap2pg_ldap_url }}
 BINDDN {{ ldap2pg_binddn_cn }},{{ ldap2pg_binddn_user_ou }},{{ ldap2pg_dc }}
 PASSWORD_FILE {{ ldap2pg_password_file }}
-TLS_REQCERT allow
+TLS_REQCERT {{ ldap2pg_tls_reqcert }}

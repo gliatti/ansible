@@ -26,5 +26,5 @@ coller au RPM PGDG.
 * `pgbouncer_max_client_conn`, `pgbouncer_default_pool_size`, `pgbouncer_reserve_pool_size`
 * `pgbouncer_database_entries`: liste d'entrées `[databases]`
   * `forcedb`: nom exposé, `host`, `port`, `dbname`
-* `pgbouncer_userlist`: liste d'utilisateurs (`name`, `password`) hachés en md5 dans `userlist.txt`
+* `pgbouncer_userlist`: liste d'utilisateurs (`name`, `password`), mot de passe en clair dans `userlist.txt` (0600) pour l'authentification SCRAM des deux côtés
 * `pgbouncer_hba_entries`: même format que `postgresql_hba_entries`

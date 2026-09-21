@@ -25,6 +25,9 @@ ldap2pg_apt_keyring: "/etc/apt/keyrings/dalibo-labs.gpg"
 # de ~postgres/ldaprc (ldap2pg refuse un fichier lisible par "other").
 ldap2pg_postgres_home: "{{ '/var/lib/pgsql' if ansible_facts['os_family'] == 'RedHat' else '/var/lib/postgresql' }}"
 ldap2pg_password_file: "{{ ldap2pg_postgres_home }}/.ldappass"
+# Vérification du certificat du serveur LDAP (valeur OpenLDAP : demand,
+# allow, never, try). "allow" désactive la vérification.
+ldap2pg_tls_reqcert: "demand"
 ldap2pg_roles_blacklist_query:
   - postgres
   - pg_*

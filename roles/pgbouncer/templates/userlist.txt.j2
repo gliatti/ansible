@@ -1,3 +1,7 @@
+{# Pas d'en-tête : le format de userlist.txt n'admet pas de commentaires.
+   Mot de passe en clair : pgbouncer en dérive le SCRAM côté client et peut
+   s'authentifier en SCRAM côté serveur ; un condensé md5 ne permettrait plus
+   de joindre un serveur en scram-sha-256. Fichier en 0600. #}
 {% for user in pgbouncer_userlist %}
-"{{ user.name }}" "{{ 'md5' + ((user.password + user.name) | hash('md5')) }}"
+"{{ user.name }}" "{{ user.password }}"
 {% endfor %}

@@ -10,7 +10,10 @@ pgbouncer_logfile: "/var/log/postgresql/pgbouncer.log"
 pgbouncer_pidfile: "/var/run/postgresql/pgbouncer.pid"
 pgbouncer_listen_addr: "*"
 pgbouncer_unix_socket_directories: "/var/run/postgresql"
-pgbouncer_auth_type: "md5"
+# scram-sha-256 : méthode par défaut de PostgreSQL depuis la 14, md5 est
+# déprécié (avertissement en PostgreSQL 18). userlist.txt contient les mots
+# de passe en clair (voir templates/userlist.txt.j2).
+pgbouncer_auth_type: "scram-sha-256"
 pgbouncer_auth_file: "/etc/pgbouncer/userlist.txt"
 pgbouncer_auth_hba_file: "/etc/pgbouncer/pgbouncer_hba.conf"
 pgbouncer_admin_users: "postgres"
