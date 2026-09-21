@@ -7,9 +7,8 @@
   ansible.builtin.import_tasks: hba_manager.yml
   when: pgbouncer_hba_entries is defined
 
-- name: "Gestion des bases de données"
+- name: "Gestion de pgbouncer.ini et des bases de données"
   ansible.builtin.import_tasks: database_entries_manager.yml
-  when: pgbouncer_database_entries is defined
 
 - name: "Gestion de la userlist"
   ansible.builtin.import_tasks: userlist_manager.yml

@@ -6,4 +6,5 @@
     owner: "{{ postgresql_sys_user }}"
     group: "{{ postgresql_sys_group }}"
     mode: "0600"
+  no_log: true
   when: pg_pass is defined

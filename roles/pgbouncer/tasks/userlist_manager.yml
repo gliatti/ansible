@@ -6,5 +6,6 @@
     owner: "{{ pgbouncer_sys_user }}"
     group: "{{ pgbouncer_sys_group }}"
     mode: "0600"
+  no_log: true
   when: pgbouncer_userlist is defined
   notify: Reload pgbouncer

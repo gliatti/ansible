@@ -12,6 +12,7 @@
     path: "{{ barman_pgpass_file }}"
     line: "{{ item.host_name }}:{{ item.port_number }}:postgres:{{ barman_user_name }}:{{ item.super_user_password }}"
   loop: "{{ barman_server_configuration }}"
+  no_log: true
   tags: barman-configure
 
 - name: "ajout des informations de connexions dans le .pgpass pour l'utilisateur {{ streaming_barman_user_name }}"
@@ -19,6 +20,7 @@
     path: "{{ barman_pgpass_file }}"
     line: "{{ item.host_name }}:{{ item.port_number }}:postgres:{{ streaming_barman_user_name }}:{{ item.streaming_user_password }}"
   loop: "{{ barman_server_configuration }}"
+  no_log: true
   tags: barman-configure
 
 - name: Création du job de de backups pour barman

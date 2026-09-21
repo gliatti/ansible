@@ -49,6 +49,7 @@
       loop:
         - { name: "barman", password: "{{ barman_user_password }}", roles: "LOGIN,SUPERUSER" }
         - { name: "streaming_barman", password: "{{ streaming_user_password }}", roles: "LOGIN,REPLICATION" }
+      no_log: true
 
     - name: redémarrage postgresql
       ansible.builtin.include_role:

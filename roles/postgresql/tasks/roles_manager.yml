@@ -10,6 +10,8 @@
     login_user: "{{ postgresql_default_owner }}"
     login_password: "{{ vault_postgresql_password | default(omit) }}"
   loop: "{{ postgresql_roles }}"
+  # Masqué uniquement pour les rôles avec mot de passe, pour garder les erreurs lisibles.
+  no_log: "{{ item.password is defined }}"
   when: postgresql_roles is defined
   become: true
   become_user: "{{ postgresql_default_owner }}"

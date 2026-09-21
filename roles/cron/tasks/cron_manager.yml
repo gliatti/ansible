@@ -4,6 +4,10 @@
     name: "{{ cron_package }}"
     state: "present"
 
+# Les fichiers de /etc/cron.d sont écrits par le module en root:root 0644 :
+# cron refuse un fichier appartenant à un autre utilisateur, et comme ces
+# fichiers portent un champ "utilisateur", un propriétaire non root pourrait
+# y planifier des commandes exécutées par root. Ne pas les chown.
 - name: "Gestion des crons"
   ansible.builtin.cron:
     user: "{{ cron_schedule.user }}"
@@ -17,16 +21,6 @@
     day: "{{ cron_schedule.day }}"
     month: "{{ cron_schedule.month }}"
     weekday: "{{ cron_schedule.weekday }}"
-  loop: "{{ cron_schedules }}"
-  loop_control:
-    loop_var: cron_schedule
-
-- name: "Gestion des droits des fichiers crons"
-  ansible.builtin.file:
-    path: "/etc/cron.d/{{ cron_schedule.cron_file }}"
-    owner: "{{ cron_schedule.user }}"
-    group: "{{ cron_file_group }}"
-    mode: "0644"
   loop: "{{ cron_schedules }}"
   loop_control:
     loop_var: cron_schedule

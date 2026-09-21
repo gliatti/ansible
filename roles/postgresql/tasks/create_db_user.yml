@@ -5,6 +5,7 @@
     password: "{{ user_password }}"
     role_attr_flags: "{{ user_roles }}"
     login_user: "postgres"
+  no_log: true
   become: true
   become_user: "postgres"
   vars:

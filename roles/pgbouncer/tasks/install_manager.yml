@@ -14,6 +14,11 @@
     name: "{{ pgbouncer_packages }}"
     state: "present"
 
+# pgbouncer.ini est déployé avant le premier démarrage pour que la socket,
+# le pid et le journal ne prennent jamais les valeurs par défaut du paquet.
+- name: "Configuration de pgbouncer.ini"
+  ansible.builtin.import_tasks: database_entries_manager.yml
+
 - name: "Service pgbouncer démarré et activé"
   ansible.builtin.service:
     name: "pgbouncer"
