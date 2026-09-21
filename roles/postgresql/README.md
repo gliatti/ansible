@@ -10,7 +10,10 @@ Tasks are extracted in several files, included in `tasks/main.yml`
 * `databases_manager.yml`: Manage the postgresql databases using the `postgresql_databases` var
 * `extensions_manager.yml`: Manage a list of extensions for each database using the `postgresql_databases` var
 * `hba_manager.yml`: Manage the pg_hba.conf file using the `postgresql_hba_entries` var
-* `install_manager.yml`: Install postgresql normalized
+* `repository_manager.yml`: PGDG repository (key + sources), also used by the pgbouncer and barman roles
+* `install_manager.yml`: Install postgresql normalized (repository, packages, initdb, layout, shell profile)
+* `layout.yml`: Backup and maintenance directories, `$PGDATA/backups` symlink
+* `bash_manager.yml`: `.bashrc` and `.bash_profile` of the postgres user
 * `pg_pass_manager.yml`: Manage the .pg_pass file
 * `prerequisites.yml`: Manage the prerequisites for postgresql
 * `privileges_manager.yml`: Manage roles privileges
@@ -22,9 +25,10 @@ Tasks are extracted in several files, included in `tasks/main.yml`
 * `postgresql_path_bin`: Path to postgresql binaries
 * `postgresql_path_lib`: Path to postgresql libraries
 * `postgresql_repository_list_name`: Name of the source list for postgresql
-* `postgresql_symlinks`: Symlinks to create
+* `postgresql_symlinks`: Symlinks to create (default: `$PGDATA/backups` -> `postgresql_pgbackup_directory`)
   * `src`: The directory of the symlink
   * `path`: Path where the symlink will be created
+* `postgresql_initdb_options`: initdb options shared by Debian (through `pg_createcluster -- ...`) and RedHat
 * `postgresql_pgdata_directory`: The directory of postgresql
 * `postgresql_version`: The version of postgresql to install
 * `postgresql_packages`: List of packages of postgresql
@@ -32,7 +36,7 @@ Tasks are extracted in several files, included in `tasks/main.yml`
 * `postgresql_pgdata_main_directory`: The directory of the main
 * `postgresql_pgbackup_directory`: The main backup directory
 * `postgresql_pgbackup_directories`: The subdirectory in `postgresql_pgbackup_directory`
-* `postgresql_maintenance_directories`:
+* `postgresql_maintenance_directories`: Maintenance directories (`dba`, `scripts`, cron logs)
 * `postgresql_global_config_options`: List of all postgresql parameters to modify
   * `option`: The name of the option
   * `value`: The value of the option

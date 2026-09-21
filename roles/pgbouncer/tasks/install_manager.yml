@@ -1,5 +1,21 @@
 ---
+- name: "Chargement des variables spécifiques à la distribution"
+  ansible.builtin.include_vars: '{{ ansible_facts["os_family"] }}.yml'
+  when: ansible_facts['os_family'] == 'RedHat'
+
+# pgbouncer est fourni par PGDG (dépôt pgdg-common sur RedHat).
+- name: "Dépôt PGDG"
+  ansible.builtin.include_role:
+    name: postgresql
+    tasks_from: repository_manager
+
 - name: "Install pgbouncer packages"
   ansible.builtin.package:
     name: "{{ pgbouncer_packages }}"
     state: "present"
+
+- name: "Service pgbouncer démarré et activé"
+  ansible.builtin.service:
+    name: "pgbouncer"
+    state: "started"
+    enabled: true

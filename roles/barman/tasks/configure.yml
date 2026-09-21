@@ -28,10 +28,10 @@
     cron_file: barman
     job: "/usr/bin/barman backup {{ item.name }} >> {{ barman_log_directory }}/{{ item.name }}.log"
     state: present
-    disabled: "{{ item.cron_disabled }}"
-    minute: "{{ item.cron_schedule.minute }}"
-    hour: "{{ item.cron_schedule.hour }}"
-    day: "{{ item.cron_schedule.day }}"
-    month: "{{ item.cron_schedule.month }}"
-    weekday: "{{ item.cron_schedule.weekday }}"
+    disabled: "{{ item.cron_disabled | default(barman_cron_disabled) }}"
+    minute: "{{ item.cron_schedule.minute | default(barman_backup_cron_schedule.minute) }}"
+    hour: "{{ item.cron_schedule.hour | default(barman_backup_cron_schedule.hour) }}"
+    day: "{{ item.cron_schedule.day | default(barman_backup_cron_schedule.day) }}"
+    month: "{{ item.cron_schedule.month | default(barman_backup_cron_schedule.month) }}"
+    weekday: "{{ item.cron_schedule.weekday | default(barman_backup_cron_schedule.weekday) }}"
   loop: "{{ barman_server_configuration }}"

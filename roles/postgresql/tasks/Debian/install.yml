@@ -1,18 +1,8 @@
 ---
-- name: "Adding postgres key"
-  ansible.builtin.apt_key:
-    url: "{{ postgresql_repository_signing_key_url }}"
-    state: "present"
-
-- name: "Adding postgres repo"
-  ansible.builtin.apt_repository:
-    filename: "{{ postgresql_repository_list_name }}"
-    repo: "deb {{ postgresql_repository }} {{ ansible_distribution_release }}-{{ postgresql_repository_list_name }} main"
-    state: "present"
-
 - name: "Install postgresql-common"
   ansible.builtin.apt:
     name: "postgresql-common"
+    update_cache: true
 
 - name: Configure default behavior
   ansible.builtin.lineinfile:
@@ -28,22 +18,46 @@
   ansible.builtin.apt:
     name: "{{ postgresql_packages }}"
 
-- name: "Creating PGDATA directory"
+- name: "Creating PGDATA and WAL directories"
   ansible.builtin.file:
     state: directory
-    path: "{{ postgresql_pgdata_main_directory }}"
+    path: "{{ item }}"
     owner: "{{ postgresql_sys_user }}"
     group: "{{ postgresql_sys_group }}"
-    mode: "1700"
+    mode: "0700"
+  loop:
+    - "{{ postgresql_pgdata_main_directory }}"
+    - "{{ postgresql_wal_main_directory }}"
 
 - name: Check if PostgreSQL database is initialized.
   ansible.builtin.stat:
     path: "{{ postgresql_pgdata_main_directory }}/PG_VERSION"
   register: pgdata_dir_version
 
+# Les options après "--" sont transmises à initdb : même initialisation que
+# sur RedHat (WAL sur /pgwal, checksums, scram-sha-256).
 - name: "Launching initdb"
-  ansible.builtin.command: "pg_createcluster {{ postgresql_version }} main -d {{ postgresql_pgdata_main_directory }}"
+  ansible.builtin.command: >-
+    pg_createcluster {{ postgresql_version }} main
+    -d {{ postgresql_pgdata_main_directory }}
+    -- {{ postgresql_initdb_options | join(' ') }}
   when: not pgdata_dir_version.stat.exists
   vars:
     ansible_ssh_pipelining: "true"
   notify: "Restart postgresql"
+
+# pg_createcluster déplace pg_hba.conf et pg_ident.conf dans
+# /etc/postgresql/<v>/main ; la configuration du rôle (hba_file, ident_file)
+# et hba_manager les attendent dans PGDATA comme sur RedHat.
+- name: "pg_hba.conf et pg_ident.conf initiaux dans PGDATA"
+  ansible.builtin.copy:
+    src: "/etc/postgresql/{{ postgresql_version }}/main/{{ item }}"
+    dest: "{{ postgresql_pgdata_main_directory }}/{{ item }}"
+    remote_src: true
+    force: false
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "0600"
+  loop:
+    - pg_hba.conf
+    - pg_ident.conf

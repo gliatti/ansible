@@ -1,3 +1,12 @@
 ---
-- name: Add the PGDG repository for {{ ansible_os_family }}
-  ansible.builtin.include_tasks: '{{ ansible_os_family }}/install.yml'
+- name: "Dépôt PGDG"
+  ansible.builtin.import_tasks: repository_manager.yml
+
+- name: "Installation et initialisation pour {{ ansible_facts['os_family'] }}"
+  ansible.builtin.include_tasks: '{{ ansible_facts["os_family"] }}/install.yml'
+
+- name: "Arborescence /pgbackup, répertoires de maintenance et liens"
+  ansible.builtin.import_tasks: layout.yml
+
+- name: "Environnement shell de l'utilisateur postgres"
+  ansible.builtin.import_tasks: bash_manager.yml

@@ -6,3 +6,13 @@
     owner: "{{ postgresql_sys_user }}"
     group: "{{ postgresql_sys_group }}"
     mode: "0700"
+
+# PATH, PGDATA et les variables de postgresql_env_vars ($dba, $cron) utilisées
+# par les crons du rôle cron.
+- name: "Configure .bash_profile"
+  ansible.builtin.template:
+    src: ".bash_profile.j2"
+    dest: "{{ postgresql_home_directory }}/.bash_profile"
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "0700"

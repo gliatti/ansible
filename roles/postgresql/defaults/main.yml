@@ -4,35 +4,44 @@
 ##################
 # Vars that don't need to be overriden
 postgresql_repository_signing_key_url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
-postgresql_repository: "http://apt.postgresql.org/pub/repos/apt/"
+postgresql_repository: "https://apt.postgresql.org/pub/repos/apt/"
+# Clé PGDG déposée hors du trousseau apt global (apt-key n'existe plus sur
+# Debian 13) et référencée par signed-by dans la source.
+postgresql_repository_keyring: "/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc"
 postgresql_path_bin: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
 postgresql_path_lib: "/usr/lib/postgresql/{{ postgresql_version }}/lib"
 postgresql_repository_list_name: "pgdg"
-postgresql_service_name: "postgresql"
+# Unité de l'instance elle-même, pas le service parapluie "postgresql" qui
+# reste "active" même quand l'instance ne démarre pas.
+postgresql_service_name: "postgresql@{{ postgresql_version }}-main"
 postgresql_home_directory: "/var/lib/postgresql"
+# Liens créés par install_manager (layout.yml). $PGDATA/backups -> /pgbackup
+# est requis par archive_command.
 postgresql_symlinks:
   - src: "{{ postgresql_pgbackup_directory }}"
     path: "{{ postgresql_pgdata_main_directory }}/backups"
-  - src: "{{ postgresql_pgdata_main_directory }}/scripts"
-    path: "$dba"
-  - path: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
-    src: "{{ postgresql_pgdata_main_directory }}/pg_hba.conf"
-  - path: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
-    src: "{{ postgresql_pgdata_main_directory }}/postgresql.conf"
-  - path: "/etc/postgresql/{{ postgresql_version }}/main/pg_ident.conf"
-    src: "{{ postgresql_pgdata_main_directory }}/pg_ident.conf"
+# Options initdb communes aux deux familles d'OS (pg_createcluster les
+# transmet à initdb sur Debian).
+postgresql_initdb_options:
+  - "--waldir={{ postgresql_wal_main_directory }}"
+  - "--auth=scram-sha-256"
+  - "--auth-local=peer"
+  - "--data-checksums"
 postgresql_debian_createcluster_options:
   - option: "create_main_cluster"
     value: "false"
+  # auto : instance démarrée au boot par postgresql.service. "disabled" fait
+  # refuser le démarrage par pg_ctlcluster ("Cluster is disabled").
   - option: "start_conf"
-    value: "disabled"
+    value: "auto"
 # Vars that can be overriden
 postgresql_pgdata_directory: "/pgdata"
 postgresql_version: "17"
+# Depuis PostgreSQL 10 les modules contrib sont dans postgresql-NN, le paquet
+# postgresql-contrib-NN n'existe plus dans PGDG.
 postgresql_packages:
   - "postgresql-{{ postgresql_version }}"
-  - "postgresql-client"
-  - "postgresql-contrib-{{ postgresql_version }}"
+  - "postgresql-client-{{ postgresql_version }}"
 postgresql_env_vars:
   - "dba={{ postgresql_pgdata_directory }}/dba"
   - "cron={{ postgresql_pgdata_directory }}/scripts_crontab"
@@ -65,7 +74,7 @@ postgresql_global_config_options:
   - option: "ident_file"
     value: "'{{ postgresql_pgdata_main_directory }}/pg_ident.conf'"
   - option: "listen_addresses"
-    value: "'{{ ansible_default_ipv4.address }}, localhost'"
+    value: "'{{ ansible_facts['default_ipv4']['address'] }}, localhost'"
   - option: "port"
     value: "{{ postgresql_port_number }}"
   - option: "wal_level"
@@ -75,7 +84,7 @@ postgresql_global_config_options:
   - option: "archive_mode"
     value: "on"
   - option: "archive_command"
-    value: "'nice -19 gzip -9c \"%p\" > \"/$PGDATA/backups/pg_wal_archived/%f.gz\"'"
+    value: "'nice -19 gzip -9c \"%p\" > \"$PGDATA/backups/pg_wal_archived/%f.gz\"'"
   - option: "log_line_prefix"
     value: "'%t [%p]: [%l-1] user=%u,db=%d'"
   - option: "lc_monetary"
@@ -132,6 +141,7 @@ postgresql_prerequisites_packages:
   - "libpq-dev"
   - "python3-psycopg2"
   - "gpg"
+  - "ca-certificates"
 
 postgresql_locale: "fr_FR.UTF-8"
 
@@ -170,11 +180,13 @@ postgresql_roles: []
 postgresql_privileges: []
   ## \c <database_name>
   ## GRANT <user_privs> ON <objs> IN SCHEMA <schema_name> TO <user_name>
+  ## (type est obligatoire : table | sequence | function | group ...)
   # - database: "database_name"
   #  roles: "user_name"
   #  privs: "user_privs"
   #  objs: ALL_IN_SCHEMA
   #  schema: "schema_name"
+  #  type: "table"
   ##
   ## \c <database_name>
   ## GRANT SELECT,UPDATE,INSERT,DELETE ON ALL TABLES IN SCHEMA <schema_name> TO <user_name>

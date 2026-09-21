@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "rocky1" do |host_config|
-    host_config.vm.hostname = "rocky"
+    host_config.vm.hostname = "rocky1"
     host_config.vm.box = "generic/rocky9"
     host_config.vm.network "private_network", ip: "192.168.60.20"
 

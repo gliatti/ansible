@@ -2,13 +2,13 @@
 - name: "Gestion des utilisateurs debian"
   ansible.builtin.import_tasks: users_manager.yml
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
     - debian_users is defined
     - debian_users | length > 0
 
 - name: "Gestion des répertoires debian"
   ansible.builtin.import_tasks: directory_manager.yml
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
     - debian_directories is defined
     - debian_directories | length > 0

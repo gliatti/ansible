@@ -1,16 +1,24 @@
 ---
 - name: "Chargement des variables spécifiques à la distribution"
-  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
-  when: ansible_os_family == 'RedHat'
+  ansible.builtin.include_vars: '{{ ansible_facts["os_family"] }}.yml'
+  when: ansible_facts['os_family'] == 'RedHat'
 
-# Sur Debian, la locale fr_FR.UTF-8 n'est pas générée par défaut : sans elle,
-# postgresql refuse de démarrer avec les paramètres lc_monetary/lc_numeric/lc_time
-# ('invalid value for parameter'). RedHat fournit cette locale via glibc.
+# Sans la locale fr_FR.UTF-8, postgresql refuse de démarrer avec les
+# paramètres lc_monetary/lc_numeric/lc_time ('invalid value for parameter').
+# Debian : locale à générer ; RedHat : les images minimales n'embarquent que
+# glibc-langpack-en, il faut le langpack de la langue.
 - name: "Génération de la locale requise par les paramètres lc_ : {{ postgresql_locale }}"
   community.general.locale_gen:
     name: "{{ postgresql_locale }}"
     state: "present"
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
+  notify: "Restart postgresql"
+
+- name: "Langpack glibc de la locale {{ postgresql_locale }}"
+  ansible.builtin.package:
+    name: "glibc-langpack-{{ postgresql_locale.split('_')[0] }}"
+    state: "present"
+  when: ansible_facts['os_family'] == 'RedHat'
   notify: "Restart postgresql"
 
 - name: Configure global settings.

@@ -1,7 +1,17 @@
 ---
-- name: Managing barman package presence
+# barman est fourni par PGDG (dépôt pgdg-common sur RedHat).
+- name: "Dépôt PGDG"
+  ansible.builtin.include_role:
+    name: postgresql
+    tasks_from: repository_manager
+  tags: barman-install
+
+# Le module cron exige crontab, absent des images cloud Debian minimales.
+- name: Managing barman and cron packages presence
   ansible.builtin.package:
-    name: barman
+    name:
+      - barman
+      - "{{ 'cron' if ansible_facts['os_family'] == 'Debian' else 'cronie' }}"
     state: present
   tags: barman-install
 
@@ -25,11 +35,17 @@
     mode: "0755"
   tags: barman-install
 
+# Le paquet installe un cron "barman cron" toutes les minutes : usermod
+# échoue si un processus barman tourne à cet instant, d'où les tentatives.
 - name: "Changement du home côté système de l'utilisateur {{ barman_user_name }}"
   ansible.builtin.user:
     name: "{{ barman_user_name }}"
     home: "{{ barman_home_directory }}"
     state: present
+  register: barman_user_home
+  retries: 6
+  delay: 10
+  until: barman_user_home is succeeded
   tags: barman-install
 
 - name: "Modification de la directive barman_home dans le fichier {{ barman_conf_file }}"

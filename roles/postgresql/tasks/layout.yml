@@ -1,0 +1,30 @@
+---
+# Arborescence de sauvegarde et de maintenance, commune aux deux familles
+# d'OS. archive_command (defaults) écrit dans $PGDATA/backups/pg_wal_archived,
+# d'où le lien $PGDATA/backups -> /pgbackup.
+- name: "Répertoires de sauvegarde"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "0750"
+  loop: "{{ [postgresql_pgbackup_directory] + postgresql_pgbackup_directories }}"
+
+- name: "Répertoires de maintenance"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+    mode: "0750"
+  loop: "{{ postgresql_maintenance_directories }}"
+
+- name: "Liens symboliques"
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    path: "{{ item.path }}"
+    state: link
+    owner: "{{ postgresql_sys_user }}"
+    group: "{{ postgresql_sys_group }}"
+  loop: "{{ postgresql_symlinks }}"

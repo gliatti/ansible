@@ -7,7 +7,9 @@ les rôles système qui les accompagnent (SSH, cron, logrotate, durcissement Deb
 PKI…).
 
 La collection est **multi-OS** et maintenue sur deux familles de distributions :
-**Debian 12 (Bookworm)** et **Rocky Linux 9**.
+**Debian 12 (Bookworm)** et **Rocky Linux 9**. Testée aussi sur Debian 13 et
+Rocky Linux 10 (au 2026-09-21, Dalibo Labs ne publie pas encore `ldap2pg` pour
+Debian 13 : `ldap2pg_install.yml` y échoue au niveau du paquet).
 
 | | |
 |---|---|
@@ -196,15 +198,17 @@ Les playbooks vivent dans `playbooks/`. Ceux dont l'entrée « Cible » indique
   `privileges_manager.yml`). Un rôle se comporte donc comme un **menu d'opérations**,
   et le playbook choisit l'entrée voulue via `tasks_from`.
 - **Dispatch par famille d'OS.** Les rôles multi-distributions branchent avec
-  `include_tasks: '{{ ansible_os_family }}/install.yml'` vers des sous-dossiers
+  `include_tasks: '{{ ansible_facts["os_family"] }}/install.yml'` vers des sous-dossiers
   `tasks/Debian/` et `tasks/RedHat/`, les variables spécifiques vivant dans
   `vars/RedHat.yml`.
 - **Variables préfixées.** Toutes les variables de rôle sont préfixées par le nom du
   rôle et documentées dans `defaults/main.yml`, qui sert de référence (sections
   « à ne pas surcharger » / « surchargeables », exemples commentés pour les listes
   vides comme `postgresql_roles` ou `postgresql_privileges`).
-- **Layout PostgreSQL.** Répartition sur `/pgdata`, `/pgwal`, `/pgbackup` avec des
-  liens symboliques vers `/etc/postgresql/<version>/main`, et paramètres mémoire
+- **Layout PostgreSQL.** Répartition sur `/pgdata`, `/pgwal`, `/pgbackup` (créés par
+  `tasks/layout.yml`, lien `$PGDATA/backups` utilisé par `archive_command`),
+  `postgresql.conf` laissé là où la distribution le place (`/etc/postgresql/<version>/main`
+  sur Debian, PGDATA sur RedHat), `pg_hba.conf` dans PGDATA, et paramètres mémoire
   (`shared_buffers`, `effective_cache_size`, `work_mem`…) calculés à partir des facts
   Ansible.
 - **Handlers.** Les redémarrages et rechargements de services passent par les

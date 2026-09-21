@@ -1,0 +1,24 @@
+---
+- name: "Répertoire du trousseau PGDG"
+  ansible.builtin.file:
+    path: "{{ postgresql_repository_keyring | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: "Clé du dépôt PGDG"
+  ansible.builtin.get_url:
+    url: "{{ postgresql_repository_signing_key_url }}"
+    dest: "{{ postgresql_repository_keyring }}"
+    mode: "0644"
+
+# deb822_repository plutôt qu'apt_repository : ce dernier exige apt-key ou
+# gpg sur la cible, absents de l'image Debian 13.
+- name: "Source apt PGDG"
+  ansible.builtin.deb822_repository:
+    name: "{{ postgresql_repository_list_name }}"
+    types: "deb"
+    uris: "{{ postgresql_repository }}"
+    suites: "{{ ansible_facts['distribution_release'] }}-{{ postgresql_repository_list_name }}"
+    components: "main"
+    signed_by: "{{ postgresql_repository_keyring }}"
+    state: "present"

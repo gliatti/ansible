@@ -9,5 +9,5 @@
   loop: "{{ debian_security_sshd_options }}"
   loop_control:
     loop_var: debian_sshd_option
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
   notify: "Restart sshd"

@@ -1,0 +1,10 @@
+---
+# Dépôt PGDG (clé + sources) pour la famille d'OS courante. Utilisé par
+# install_manager et par les rôles pgbouncer et barman, dont les paquets
+# viennent aussi de PGDG.
+- name: "Chargement des variables spécifiques à la distribution"
+  ansible.builtin.include_vars: '{{ ansible_facts["os_family"] }}.yml'
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: "Dépôt PGDG pour {{ ansible_facts['os_family'] }}"
+  ansible.builtin.include_tasks: '{{ ansible_facts["os_family"] }}/repository.yml'

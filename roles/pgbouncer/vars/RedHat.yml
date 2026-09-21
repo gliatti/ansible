@@ -1,0 +1,9 @@
+---
+# Le RPM PGDG pgbouncer tourne avec l'utilisateur pgbouncer, journalise dans
+# /var/log/pgbouncer et n'a pas le droit d'écrire dans /var/run/postgresql
+# (répertoire de postgres). Chemins alignés sur l'unité systemd du paquet.
+pgbouncer_sys_user: "pgbouncer"
+pgbouncer_sys_group: "pgbouncer"
+pgbouncer_logfile: "/var/log/pgbouncer/pgbouncer.log"
+pgbouncer_pidfile: "/run/pgbouncer/pgbouncer.pid"
+pgbouncer_unix_socket_directories: "/tmp"

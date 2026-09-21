@@ -18,6 +18,13 @@ ldap2pg_groups:
       - "public"
     options: "LOGIN INHERIT"
 ldap2pg_conf_directory: "/etc/ldap2pg"
+# Clé apt Dalibo Labs (binaire) référencée par signed-by : apt-key n'existe
+# plus sur Debian 13.
+ldap2pg_apt_keyring: "/etc/apt/keyrings/dalibo-labs.gpg"
+# Mot de passe du bind LDAP, lu par ldap2pg via la directive PASSWORD_FILE
+# de ~postgres/ldaprc (ldap2pg refuse un fichier lisible par "other").
+ldap2pg_postgres_home: "{{ '/var/lib/pgsql' if ansible_facts['os_family'] == 'RedHat' else '/var/lib/postgresql' }}"
+ldap2pg_password_file: "{{ ldap2pg_postgres_home }}/.ldappass"
 ldap2pg_roles_blacklist_query:
   - postgres
   - pg_*

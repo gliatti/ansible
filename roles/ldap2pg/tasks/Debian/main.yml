@@ -1,12 +1,27 @@
 # ansible/roles/ldap2pg/tasks/Debian/main.yml
 ---
+- name: "Répertoire des trousseaux apt"
+  ansible.builtin.file:
+    path: "{{ ldap2pg_apt_keyring | dirname }}"
+    state: directory
+    mode: "0755"
+
 - name: "Adding debian dalibo key"
-  ansible.builtin.apt_key:
+  ansible.builtin.get_url:
     url: "https://apt.dalibo.org/labs/debian-dalibo.gpg"
-    state: "present"
+    dest: "{{ ldap2pg_apt_keyring }}"
+    mode: "0644"
 
 - name: "Adding dalibo-labs repo"
-  ansible.builtin.apt_repository:
-    filename: "dalibo-labs"
-    repo: "deb http://apt.dalibo.org/labs {{ ansible_distribution_release }}-dalibo main"
+  ansible.builtin.deb822_repository:
+    name: "dalibo-labs"
+    types: "deb"
+    uris: "https://apt.dalibo.org/labs"
+    suites: "{{ ansible_facts['distribution_release'] }}-dalibo"
+    components: "main"
+    signed_by: "{{ ldap2pg_apt_keyring }}"
     state: "present"
+
+- name: "Cache apt à jour"
+  ansible.builtin.apt:
+    update_cache: true

@@ -1,0 +1,50 @@
+---
+# Dépôts déclarés via yum_repository avec la clé embarquée dans files/ : le
+# téléchargement du RPM pgdg-redhat-repo échoue sur certains guests
+# ([ASN1: NOT_ENOUGH_DATA]).
+- name: "Deposit the postgres gpg key"
+  ansible.builtin.copy:
+    src: "PGDG-RPM-GPG-KEY-RHEL"
+    dest: "/etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: "Adding postgres key"
+  ansible.builtin.rpm_key:
+    key: "/etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
+    state: present
+
+- name: "Adding postgres repos pgdg-common and pgdg{{ postgresql_version }}"
+  ansible.builtin.yum_repository:
+    file: "pgdg-redhat-all"
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    gpgkey: "file:///etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
+    gpgcheck: true
+    enabled: true
+    state: "present"
+  loop:
+    - name: "pgdg{{ postgresql_version }}"
+      description: "PostgreSQL {{ postgresql_version }} for RHEL / Rocky Linux / AlmaLinux $releasever - $basearch"
+      baseurl: "{{ postgresql_repository_version_baseurl }}"
+    - name: "pgdg-common"
+      description: "PostgreSQL common RPMs for RHEL / Rocky Linux / AlmaLinux $releasever - $basearch"
+      baseurl: "{{ postgresql_repository_common_baseurl }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+# Le module AppStream postgresql masque les paquets PGDG sur EL-8/EL-9.
+# EL-10 ne fournit plus de contenu modulaire : rien à désactiver.
+- name: Configure default behavior
+  ansible.builtin.copy:
+    dest: /etc/dnf/modules.d/postgresql.module
+    mode: "0644"
+    content: |-
+      [postgresql]
+      name=postgresql
+      stream=
+      profiles=
+      state=disabled
+  when: ansible_facts['distribution_major_version'] | int < 10

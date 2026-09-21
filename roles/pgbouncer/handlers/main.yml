@@ -3,3 +3,11 @@
   ansible.builtin.service:
     name: "pgbouncer"
     state: "reloaded"
+
+# listen_addr, listen_port, unix_socket_dir... ne sont pas pris en compte
+# par un reload : pgbouncer.ini exige un redémarrage.
+- name: Restart pgbouncer
+  ansible.builtin.service:
+    name: "pgbouncer"
+    state: "restarted"
+    enabled: true

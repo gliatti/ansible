@@ -18,3 +18,22 @@ barman_cron_schedule:
   month: "*"
 
 barman_cron_disabled: false
+
+# Planification par défaut du "barman backup <serveur>" (surchargeable par
+# serveur via cron_schedule / cron_disabled dans barman_server_configuration).
+barman_backup_cron_schedule:
+  minute: "0"
+  hour: "1"
+  day: "*"
+  weekday: "*"
+  month: "*"
+
+# barman_server_configuration:
+#   - name: "pg1"
+#     description: "Serveur pg1"
+#     host_name: "pg1.example.org"
+#     port_number: 5432
+#     super_user_password: "..."
+#     streaming_user_password: "..."
+#     cron_disabled: false
+#     cron_schedule: { minute: "0", hour: "1", day: "*", month: "*", weekday: "*" }

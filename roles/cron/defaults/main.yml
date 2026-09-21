@@ -1,7 +1,9 @@
 ---
 # Groupe propriétaire des fichiers déposés dans /etc/cron.d.
 # Debian fournit le groupe système "crontab" ; RedHat/Rocky ne l'a pas -> "root".
-cron_file_group: "{{ 'crontab' if ansible_os_family == 'Debian' else 'root' }}"
+cron_file_group: "{{ 'crontab' if ansible_facts['os_family'] == 'Debian' else 'root' }}"
+# Paquet fournissant crontab (absent des images cloud Debian minimales).
+cron_package: "{{ 'cron' if ansible_facts['os_family'] == 'Debian' else 'cronie' }}"
 
 # cron_schedules:
 #  - user: "postgres"

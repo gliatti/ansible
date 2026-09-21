@@ -15,7 +15,7 @@
         - "deb-src http://archive.debian.org/debian/ wheezy contrib main non-free"
         - "deb http://archive.debian.org/debian wheezy-backports main contrib non-free"
         - "deb-src http://archive.debian.org/debian wheezy-backports main contrib non-free"
-      when: ansible_distribution_release == "wheezy"
+      when: ansible_facts['distribution_release'] == "wheezy"
 
     - name: "Adding jessie Repo"
       ansible.builtin.apt_repository:
@@ -29,7 +29,7 @@
         - "deb-src http://security.debian.org/ jessie/updates main contrib non-free"
         - "deb http://deb.debian.org/debian jessie-backports main contrib non-free"
         - "deb-src http://deb.debian.org/debian jessie-backports main"
-      when: ansible_distribution_release == "jessie"
+      when: ansible_facts['distribution_release'] == "jessie"
 
     - name: "Adding stretch Repo"
       ansible.builtin.apt_repository:
@@ -43,7 +43,7 @@
         - "deb-src http://security.debian.org/ stretch/updates main contrib non-free"
         - "deb http://deb.debian.org/debian stretch-backports main contrib non-free"
         - "deb-src http://deb.debian.org/debian stretch-backports main"
-      when: ansible_distribution_release == "stretch"
+      when: ansible_facts['distribution_release'] == "stretch"
 
     - name: "Adding buster Repo"
       ansible.builtin.apt_repository:
@@ -57,4 +57,4 @@
         - "deb-src http://security.debian.org/ buster/updates main contrib non-free"
         - "deb http://deb.debian.org/debian buster-backports main contrib non-free"
         - "deb-src http://deb.debian.org/debian buster-backports main"
-      when: ansible_distribution_release == "buster"
+      when: ansible_facts['distribution_release'] == "buster"

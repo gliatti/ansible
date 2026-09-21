@@ -1,61 +1,18 @@
 ---
-- name: Include variables.
-  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
-
-- name: "Deposit the postgres gpg key"
-  ansible.builtin.copy:
-    src: "PGDG-RPM-GPG-KEY-RHEL"
-    dest: "/etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
-    owner: "root"
-    group: "root"
-    mode: "0644"
-
-- name: "Adding postgres key"
-  ansible.builtin.rpm_key:
-    key: "/etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
-    state: present
-
-- name: Adding postgres repo
-  ansible.builtin.yum_repository:
-    file: "pgdg-redhat-all"
-    name: "pgdg{{ postgresql_version }}"
-    description: "PostgreSQL {{ postgresql_version }} for RHEL / Rocky Linux / AlmaLinux {{ ansible_distribution_major_version }} - $basearch"
-    baseurl: "https://download.postgresql.org/pub/repos/yum/{{ postgresql_version }}/redhat/rhel-{{ ansible_distribution_major_version }}-$basearch"
-    gpgkey: "file:///etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL"
-    gpgcheck: true
-    enabled: true
-    state: "present"
-
-- name: Configure default behavior
-  ansible.builtin.copy:
-    dest: /etc/dnf/modules.d/postgresql.module
-    mode: "0644"
-    content: |-
-      [postgresql]
-      name=postgresql
-      stream=
-      profiles=
-      state=disabled
-
 - name: Install postgresql packages
   ansible.builtin.package:
     name: '{{ postgresql_packages }}'
 
-- name: "Creating PGDATA directory"
+- name: "Creating PGDATA and WAL directories"
   ansible.builtin.file:
     state: directory
-    path: "{{ postgresql_pgdata_main_directory }}"
+    path: "{{ item }}"
     owner: "{{ postgresql_sys_user }}"
     group: "{{ postgresql_sys_group }}"
-    mode: "1700"
-
-- name: "Creating WAL directory"
-  ansible.builtin.file:
-    state: directory
-    path: "{{ postgresql_wal_main_directory }}"
-    owner: "{{ postgresql_sys_user }}"
-    group: "{{ postgresql_sys_group }}"
-    mode: "1700"
+    mode: "0700"
+  loop:
+    - "{{ postgresql_pgdata_main_directory }}"
+    - "{{ postgresql_wal_main_directory }}"
 
 - name: Check if PostgreSQL database is initialized.
   ansible.builtin.stat:
@@ -64,10 +21,9 @@
 
 - name: "Launching initdb"
   ansible.builtin.command: >-
-    /usr/pgsql-{{ postgresql_version }}/bin/initdb
+    {{ postgresql_path_bin }}/initdb
     --pgdata='{{ postgresql_pgdata_main_directory }}'
-    --waldir='{{ postgresql_wal_main_directory }}'
-    --auth=scram-sha-256 --auth-local=peer --data-checksums
+    {{ postgresql_initdb_options | join(' ') }}
   become: true
   become_user: postgres
   when: not pgdata_dir_version.stat.exists
@@ -75,12 +31,21 @@
     ansible_ssh_pipelining: "true"
   notify: "Restart postgresql"
 
-- name: "Configuration du service systemd postgresql-{{ postgresql_version }}"
-  ansible.builtin.lineinfile:
-    dest: "/usr/lib/systemd/system/postgresql-{{ postgresql_version }}.service"
-    regexp: "^#?Environment=PGDATA.+$"
-    line: "Environment=PGDATA={{ postgresql_pgdata_main_directory }}"
-    state: "present"
+# Drop-in systemd : le fichier /usr/lib/systemd/system/postgresql-NN.service
+# appartient au RPM et serait écrasé à chaque mise à jour mineure.
+- name: "Répertoire du drop-in systemd de {{ postgresql_service_name }}"
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ postgresql_service_name }}.service.d"
+    state: directory
+    mode: "0755"
+
+- name: "Drop-in systemd PGDATA du service {{ postgresql_service_name }}"
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/{{ postgresql_service_name }}.service.d/override.conf"
+    mode: "0644"
+    content: |
+      [Service]
+      Environment=PGDATA={{ postgresql_pgdata_main_directory }}
   notify:
     - "Reload systemd daemon"
     - "Restart postgresql"

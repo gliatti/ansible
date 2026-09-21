@@ -1,7 +1,7 @@
 ---
 - name: "Chargement des variables spécifiques à la distribution"
-  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
-  when: ansible_os_family == 'RedHat'
+  ansible.builtin.include_vars: '{{ ansible_facts["os_family"] }}.yml'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Configure host based authentication (if entries are configured).
   ansible.builtin.template:

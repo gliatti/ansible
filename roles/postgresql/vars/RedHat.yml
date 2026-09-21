@@ -1,11 +1,15 @@
 ---
 postgresql_repository_signing_key_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
-postgresql_repository: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/\
-  pgdg-redhat-repo-latest.noarch.rpm"
+postgresql_repository: "https://download.postgresql.org/pub/repos/yum"
+# pgdg-common fournit pgbouncer, barman et les extensions tierces.
+postgresql_repository_common_baseurl: "{{ postgresql_repository }}/common/redhat/rhel-$releasever-$basearch"
+postgresql_repository_version_baseurl: "{{ postgresql_repository }}/{{ postgresql_version }}/redhat/rhel-$releasever-$basearch"
 postgresql_service_name: "postgresql-{{ postgresql_version }}"
 postgresql_home_directory: "/var/lib/pgsql"
 # Sur RedHat, initdb écrit postgresql.conf directement dans le PGDATA.
 postgresql_conf_directory: "{{ postgresql_pgdata_main_directory }}"
+postgresql_path_bin: "/usr/pgsql-{{ postgresql_version }}/bin"
+postgresql_path_lib: "/usr/pgsql-{{ postgresql_version }}/lib"
 postgresql_packages:
   - "postgresql{{ postgresql_version }}-server"
   - "postgresql{{ postgresql_version }}-contrib"

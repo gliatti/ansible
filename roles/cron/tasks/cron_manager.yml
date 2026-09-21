@@ -1,4 +1,9 @@
 ---
+- name: "Paquet cron"
+  ansible.builtin.package:
+    name: "{{ cron_package }}"
+    state: "present"
+
 - name: "Gestion des crons"
   ansible.builtin.cron:
     user: "{{ cron_schedule.user }}"

@@ -1,4 +1,8 @@
 ---
+- name: "Chargement des variables spécifiques à la distribution"
+  ansible.builtin.include_vars: '{{ ansible_facts["os_family"] }}.yml'
+  when: ansible_facts['os_family'] == 'RedHat'
+
 - name: "Gestion de l'authentification host based"
   ansible.builtin.import_tasks: hba_manager.yml
   when: pgbouncer_hba_entries is defined

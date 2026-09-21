@@ -1,6 +1,6 @@
 ---
-- name: Add the dalibo labs repository for {{ ansible_os_family }}
-  ansible.builtin.include_tasks: '{{ ansible_os_family }}/main.yml'
+- name: Add the dalibo labs repository for {{ ansible_facts['os_family'] }}
+  ansible.builtin.include_tasks: '{{ ansible_facts["os_family"] }}/main.yml'
 
 - name: "Install ldap2pg packages"
   ansible.builtin.package:
@@ -24,45 +24,23 @@
     mode: "0600"
   when: ldap2pg_groups is defined
 
-- name: "Create .env file"
-  ansible.builtin.template:
-    src: ".env.j2"
-    dest: "{{ ldap2pg_conf_directory }}/.env"
-    owner: "postgres"
-    group: "postgres"
-    mode: "0600"
-
-- name: "Create ~postgres/.ldappass file"
+# ldap2pg lit ~/ldaprc, ~/.ldaprc, ./ldaprc, /etc/ldap/ldap.conf et les
+# variables LDAP* ; le mot de passe vient de PASSWORD_FILE (cf. ldaprc.j2).
+- name: "Fichier du mot de passe LDAP {{ ldap2pg_password_file }}"
   ansible.builtin.template:
     src: ".ldappass.j2"
-    dest: "~postgres/.ldappass"
+    dest: "{{ ldap2pg_password_file }}"
     owner: "postgres"
     group: "postgres"
     mode: "0600"
-
-- name: "Creating /etc/ldaprc directory"
-  ansible.builtin.file:
-    state: directory
-    path: "/etc/ldaprc"
-    owner: "root"
-    group: "root"
-    mode: "0755"
-
-- name: "Create /etc/ldaprc/ldaprc file"
-  ansible.builtin.template:
-    src: "etc.ldaprc.j2"
-    dest: "/etc/ldaprc/ldaprc"
-    owner: "root"
-    group: "root"
-    mode: "0644"
 
 - name: "Create ~postgres/ldaprc file"
   ansible.builtin.template:
     src: "ldaprc.j2"
-    dest: "~postgres/ldaprc"
+    dest: "{{ ldap2pg_postgres_home }}/ldaprc"
     owner: "postgres"
     group: "postgres"
-    mode: "0644"
+    mode: "0600"
 
 # FIXME: Create conf files
 # pg_hba.conf
